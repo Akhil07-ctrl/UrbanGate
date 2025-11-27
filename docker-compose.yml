@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0-alpine
+    container_name: urbangate-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: urbangate
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - urbangate-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: urbangate-backend
+    ports:
+      - "5000:5000"
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/urbangate
+      JWT_SECRET: development_secret_key_change_in_production
+      JWT_EXPIRE: 7d
+      NODE_ENV: development
+      FRONTEND_URL: http://localhost:3000
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - urbangate-network
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: urbangate-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://localhost:5000/api
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - urbangate-network
+    command: npm run dev
+
+volumes:
+  mongo_data:
+
+networks:
+  urbangate-network:
+    driver: bridge
