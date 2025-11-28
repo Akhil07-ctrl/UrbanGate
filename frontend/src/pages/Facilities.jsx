@@ -161,130 +161,237 @@ export const Facilities = () => {
     .sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-6 lg:px-8 py-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-text">Community Facilities</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Community Facilities</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Book and manage community facilities for your needs
+          </p>
+        </div>
         {user?.role === 'admin' && (
-          <Button onClick={() => setShowCreateModal(true)}>+ Add Facility</Button>
+          <Button 
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            Add Facility
+          </Button>
         )}
       </div>
 
       {/* Resident's Bookings */}
       {user?.role === 'resident' && residentBookings.length > 0 && (
-        <Card className="bg-gradient-to-r from-gray-100 to-gray-50">
-          <h2 className="text-xl font-bold text-text mb-4">My Bookings</h2>
+        <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              My Upcoming Bookings
+            </h2>
+            <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
+              {residentBookings.length} total
+            </span>
+          </div>
+          
           <div className="space-y-3">
             {residentBookings.slice(0, 3).map((booking) => (
-              <div key={booking._id} className="p-3 bg-white rounded-lg border border-border">
+              <div key={booking._id} className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-semibold text-text">{booking.facilityName}</p>
-                    <p className="text-sm text-textLight">
-                      {new Date(booking.startTime).toLocaleString()} - {new Date(booking.endTime).toLocaleString()}
+                    <p className="font-semibold text-lg">{booking.facilityName}</p>
+                    <div className="flex items-center gap-2 text-sm text-indigo-100 mt-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>{new Date(booking.startTime).toLocaleDateString()}</span>
+                      <span className="mx-1">•</span>
+                      <span>{new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                    booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {booking.status}
+                  </span>
+                </div>
+                {booking.status === 'pending' && (
+                  <div className="mt-3 pt-3 border-t border-white/20">
+                    <p className="text-xs text-indigo-100 flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Waiting for admin approval
                     </p>
                   </div>
-                  <Badge
-                    variant={
-                      booking.status === 'confirmed' ? 'success' :
-                      booking.status === 'pending' ? 'warning' : 'error'
-                    }
-                  >
-                    {booking.status}
-                  </Badge>
-                </div>
+                )}
               </div>
             ))}
             {residentBookings.length > 3 && (
-              <p className="text-sm text-textLight text-center">
+              <button className="w-full text-center text-indigo-100 hover:text-white text-sm font-medium mt-2">
                 + {residentBookings.length - 3} more bookings
-              </p>
+              </button>
             )}
           </div>
-        </Card>
+        </div>
       )}
 
       {/* Facilities Grid */}
-      {facilities.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {facilities.map((facility) => (
-            <Card key={facility._id} className="hover:shadow-lg transition-shadow">
-              <div className="space-y-4">
-                {facility.image && (
-                  <img src={facility.image} alt={facility.name} className="w-full h-48 object-cover rounded-lg" />
+      <div className="mt-8">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Available Facilities</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {facilities.length} facilities • Book your preferred time slot
+            </p>
+          </div>
+          <div className="relative">
+            <select 
+              className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              onChange={(e) => {
+                // Add filter logic here
+              }}
+            >
+              <option value="all">All Facilities</option>
+              <option value="clubhouse">Clubhouse</option>
+              <option value="gym">Gym</option>
+              <option value="pool">Swimming Pool</option>
+              <option value="tennis-court">Tennis Court</option>
+              <option value="guest-room">Guest Room</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {facilities.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {facilities.map((facility) => (
+              <div 
+                key={facility._id} 
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700"
+              >
+                {facility.image ? (
+                  <div className="h-48 overflow-hidden">
+                    <img 
+                      src={facility.image} 
+                      alt={facility.name} 
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://via.placeholder.com/400x200?text=Facility+Image';
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="h-48 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-indigo-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
                 )}
 
-                <div>
-                  <h3 className="text-xl font-bold text-text">{facility.name}</h3>
-                  <p className="text-textLight text-sm">{facility.description}</p>
-                </div>
+                <div className="p-5">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">{facility.name}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        {facility.type.charAt(0).toUpperCase() + facility.type.slice(1).replace('-', ' ')}
+                      </p>
+                    </div>
+                    <span className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded-full">
+                      {facility.capacity || 'N/A'} people
+                    </span>
+                  </div>
 
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-textLight">Type</p>
-                    <p className="font-semibold text-text">{facility.type}</p>
-                  </div>
-                  <div>
-                    <p className="text-textLight">Capacity</p>
-                    <p className="font-semibold text-text">{facility.capacity} people</p>
-                  </div>
-                  <div>
-                    <p className="text-textLight">Opens</p>
-                    <p className="font-semibold text-text">{facility.workingHours?.open}</p>
-                  </div>
-                  <div>
-                    <p className="text-textLight">Closes</p>
-                    <p className="font-semibold text-text">{facility.workingHours?.close}</p>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <p className="text-textLight text-sm">
-                    {facility.bookings?.filter((b) => b.status === 'confirmed').length || 0} confirmed bookings
+                  <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+                    {facility.description || 'No description available'}
                   </p>
-                  {facility.bookings?.filter((b) => b.status === 'pending').length > 0 && (
-                    <Badge variant="warning">
-                      {facility.bookings.filter((b) => b.status === 'pending').length} pending
-                    </Badge>
-                  )}
-                </div>
 
-                <div className="flex gap-2">
-                  {user?.role === 'resident' && (
-                    <Button
-                      onClick={() => {
-                        setSelectedFacility(facility);
-                        setShowBookForm(true);
-                      }}
-                      className="flex-1"
-                    >
-                      Book Facility
-                    </Button>
-                  )}
-                  {user?.role === 'admin' && (
-                    <Button
-                      onClick={() => {
-                        setSelectedFacility(facility);
-                        setShowBookingsModal(true);
-                      }}
-                      className="flex-1"
-                      variant="secondary"
-                    >
-                      Manage Bookings
-                    </Button>
-                  )}
+                  <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{facility.workingHours?.open} - {facility.workingHours?.close}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span>{facility.bookings?.filter(b => b.status === 'confirmed').length || 0} confirmed</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex gap-2">
+                      {user?.role === 'resident' ? (
+                        <button
+                          onClick={() => {
+                            setSelectedFacility(facility);
+                            setShowBookForm(true);
+                          }}
+                          className="flex-1 py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors flex items-center justify-center gap-1"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          Book Now
+                        </button>
+                      ) : user?.role === 'admin' && (
+                        <button
+                          onClick={() => {
+                            setSelectedFacility(facility);
+                            setShowBookingsModal(true);
+                          }}
+                          className="flex-1 py-2 px-3 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white text-sm rounded-lg transition-colors flex items-center justify-center gap-1"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                          Manage
+                        </button>
+                      )}
+                      
+                      {facility.bookings?.filter(b => b.status === 'pending').length > 0 && (
+                        <span className="px-2.5 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full flex items-center">
+                          {facility.bookings.filter(b => b.status === 'pending').length} pending
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <EmptyState
-          title="No Facilities"
-          description={user?.role === 'admin' ? 'Add facilities to your community' : 'No facilities available for booking'}
-          icon="🏛️"
-        />
-      )}
+            ))}
+          </div>
+        ) : (
+          <EmptyState 
+            title="No Facilities Available"
+            description={
+              user?.role === 'admin' 
+                ? 'Add facilities to allow residents to book them' 
+                : 'No facilities are currently available for booking. Please check back later.'
+            }
+            icon="🏛️"
+            action={
+              user?.role === 'admin' 
+                ? {
+                    text: 'Add Your First Facility',
+                    onClick: () => setShowCreateModal(true)
+                  } 
+                : null
+            }
+          />
+        )}
+      </div>
 
       {/* Book Form Modal (Resident) */}
       {user?.role === 'resident' && (

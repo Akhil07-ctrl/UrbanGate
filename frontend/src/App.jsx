@@ -17,7 +17,7 @@ import { Login, Register } from './pages/Auth';
 import { Dashboard } from './pages/Dashboard';
 import { Communities } from './pages/Communities';
 import { CommunityManagement } from './pages/CommunityManagement';
-import { Complaints } from './pages/Complaints';
+import Complaints from './pages/Complaints';
 import { Announcements } from './pages/Announcements';
 import { VisitorPass } from './pages/VisitorPass';
 import { Parking } from './pages/Parking';
@@ -48,7 +48,8 @@ const AppContent = () => {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Welcome />} />
+      <Route path="/" element={user ? <Navigate to="/welcome" replace /> : <Welcome />} />
+      <Route path="/welcome" element={user ? <Welcome /> : <Navigate to="/login" replace />} />
       <Route path="/features" element={<FeaturesPage />} />
       <Route path="/benefits" element={<BenefitsPage />} />
       <Route path="/about" element={<AboutPage />} />
