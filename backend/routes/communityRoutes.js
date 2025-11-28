@@ -18,22 +18,22 @@ import {
 
 const router = express.Router();
 
-// Public routes
-router.get('/all', getAllCommunities);
-router.get('/:id', getCommunityDetails);
-
-// Protected routes
+// Protected routes - must come before parameterized routes
 router.post('/create', authenticateToken, authorize(['admin']), createCommunity);
 router.get('/my-community', authenticateToken, getUserCommunity);
 router.get('/members', authenticateToken, getCommunityMembers);
 router.post('/join', authenticateToken, authorize(['resident', 'security']), requestJoinCommunity);
 
-// Admin routes
+// Admin routes - specific routes before parameterized ones
 router.get('/admin/join-requests', authenticateToken, authorize(['admin']), getJoinRequests);
 router.post('/admin/approve-request/:requestId', authenticateToken, authorize(['admin']), approveJoinRequest);
 router.post('/admin/reject-request/:requestId', authenticateToken, authorize(['admin']), rejectJoinRequest);
 router.delete('/admin/remove-member/:communityId/:memberId', authenticateToken, authorize(['admin']), removeMember);
 router.put('/admin/update/:communityId', authenticateToken, authorize(['admin']), updateCommunity);
 router.delete('/admin/delete/:communityId', authenticateToken, authorize(['admin']), deleteCommunity);
+
+// Public routes - parameterized routes come last
+router.get('/all', getAllCommunities);
+router.get('/:id', getCommunityDetails);
 
 export default router;

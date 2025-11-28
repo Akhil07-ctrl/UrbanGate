@@ -11,7 +11,7 @@ export const authenticateToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, config.jwtSecret);
-    console.log('Decoded token:', decoded);  // Add this line
+    console.log('Decoded token:', decoded);
     req.user = decoded;
     next();
   } catch (error) {
@@ -19,10 +19,10 @@ export const authenticateToken = (req, res, next) => {
   }
 };
 
-export const authorize = (...allowedRoles) => {
+export const authorize = (allowedRoles) => {
   return (req, res, next) => {
-    console.log('User role:', req.user?.role); // Add this
-    console.log('Allowed roles:', allowedRoles); // Add this
+    console.log('User role:', req.user?.role);
+    console.log('Allowed roles:', allowedRoles);
     if (!req.user) {
       return res.status(401).json({ message: 'User not authenticated' });
     }
@@ -31,8 +31,8 @@ export const authorize = (...allowedRoles) => {
     } else {
       return res.status(403).json({
         message: 'Access denied',
-        userRole: req.user.role,  // Add this
-        allowedRoles              // Add this
+        userRole: req.user.role,
+        allowedRoles
       });
     }
   };
