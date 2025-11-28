@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 
 const NotificationContext = createContext();
 
@@ -12,7 +12,7 @@ export const NotificationProvider = ({ children }) => {
       ...notification,
       timestamp: new Date()
     };
-    
+
     setNotifications(prev => [...prev, newNotification]);
 
     // Auto remove after 5 seconds

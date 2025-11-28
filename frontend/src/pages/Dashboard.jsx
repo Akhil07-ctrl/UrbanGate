@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Button, Loading, EmptyState } from '../components/UI';
+import { useState, useEffect } from 'react';
+
+import { Card, Loading, EmptyState, Badge } from '../components/UI';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
 export const Dashboard = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
+  const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [complaints, announcements, visitors] = await Promise.all([
+        const [complaints, announcements, visitors, membersRes] = await Promise.all([
           api.get('/complaints?limit=5'),
           api.get('/announcements?limit=5'),
           user?.role === 'resident' ? api.get('/visitors') : Promise.resolve({ data: { visitors: [] } }),
+          api.get('/communities/members').catch(() => ({ data: { members: [] } })),
         ]);
 
         setStats({
@@ -23,6 +26,7 @@ export const Dashboard = () => {
           announcements: announcements.data.announcements || [],
           visitors: visitors.data.visitors || [],
         });
+        setMembers(membersRes.data.members || []);
       } catch (error) {
         console.error('Failed to fetch stats', error);
       } finally {
@@ -66,6 +70,39 @@ export const Dashboard = () => {
           </div>
         </Card>
       </div>
+
+      {/* Community Members */}
+      {members.length > 0 && (
+        <Card>
+          <h2 className="text-xl font-bold text-text mb-4">Community Members ({members.length})</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {members.map((member) => (
+              <div key={member._id} className="p-3 border border-border rounded-lg hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3 mb-2">
+                  {member.profileImage ? (
+                    <img
+                      src={member.profileImage}
+                      alt={member.name}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold">
+                      {member.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-text truncate">{member.name}</p>
+                    <p className="text-xs text-textLight truncate">{member.flatNumber || 'N/A'}</p>
+                  </div>
+                </div>
+                <Badge variant={member.role === 'admin' ? 'primary' : member.role === 'security' ? 'warning' : 'success'}>
+                  {member.role}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

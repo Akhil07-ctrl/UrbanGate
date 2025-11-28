@@ -2,6 +2,11 @@ import mongoose from 'mongoose';
 
 const paymentSchema = new mongoose.Schema(
   {
+    communityId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Community',
+      required: true
+    },
     residentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

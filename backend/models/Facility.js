@@ -2,6 +2,11 @@ import mongoose from 'mongoose';
 
 const facilitySchema = new mongoose.Schema(
   {
+    communityId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Community',
+      required: true
+    },
     name: {
       type: String,
       required: [true, 'Please provide facility name'],

@@ -2,16 +2,21 @@ import mongoose from 'mongoose';
 
 const parkingSchema = new mongoose.Schema(
   {
+    communityId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Community',
+      required: true
+    },
     slotNumber: {
       type: String,
-      required: true,
-      unique: true
+      required: true
     },
     type: {
       type: String,
       enum: ['resident', 'guest'],
       required: true
     },
+    // Compound index to ensure unique slot numbers per community
     residentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
@@ -52,5 +57,8 @@ const parkingSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Compound index to ensure unique slot numbers per community
+parkingSchema.index({ communityId: 1, slotNumber: 1 }, { unique: true });
 
 export default mongoose.model('Parking', parkingSchema);

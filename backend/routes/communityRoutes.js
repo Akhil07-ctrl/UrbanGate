@@ -1,4 +1,5 @@
 import express from 'express';
+
 import { authenticateToken, authorize } from '../middleware/auth.js';
 import {
   createCommunity,
@@ -10,6 +11,7 @@ import {
   rejectJoinRequest,
   removeMember,
   getUserCommunity,
+  getCommunityMembers,
   updateCommunity,
   deleteCommunity
 } from '../controllers/communityController.js';
@@ -23,6 +25,7 @@ router.get('/:id', getCommunityDetails);
 // Protected routes
 router.post('/create', authenticateToken, authorize(['admin']), createCommunity);
 router.get('/my-community', authenticateToken, getUserCommunity);
+router.get('/members', authenticateToken, getCommunityMembers);
 router.post('/join', authenticateToken, authorize(['resident', 'security']), requestJoinCommunity);
 
 // Admin routes

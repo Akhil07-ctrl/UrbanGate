@@ -56,7 +56,7 @@ export const Select = ({ label, options, error, ...props }) => (
       {...props}
     >
       <option value="">Select an option</option>
-      {options.map((opt) => (
+      {options && options.map((opt) => (
         <option key={opt.value} value={opt.value}>
           {opt.label}
         </option>
@@ -121,7 +121,7 @@ export const ErrorState = ({ title = 'Error', message = 'Something went wrong', 
   </div>
 );
 
-export const Badge = ({ children, variant = 'primary' }) => {
+export const Badge = ({ children, variant = 'primary', className = '' }) => {
   const variants = {
     primary: 'bg-[#e8e8e8] text-[#333333]',
     success: 'bg-[#d1fae5] text-[#065f46]',
@@ -129,7 +129,7 @@ export const Badge = ({ children, variant = 'primary' }) => {
     warning: 'bg-[#fef3c7] text-[#92400e]',
   };
 
-  return <span className={`px-3 py-1 rounded-full text-sm font-medium ${variants[variant]}`}>{children}</span>;
+  return <span className={`px-3 py-1 rounded-full text-sm font-medium ${variants[variant]} ${className}`}>{children}</span>;
 };
 
 export const Alert = ({ type = 'info', message }) => {
@@ -144,5 +144,209 @@ export const Alert = ({ type = 'info', message }) => {
     <div className={`border rounded-lg p-4 ${types[type]}`}>
       {message}
     </div>
+  );
+};
+
+// Tabs Components
+export const Tabs = ({ children, selectedTab, onTabChange }) => (
+  <div className="w-full">
+    {children}
+  </div>
+);
+
+export const TabList = ({ children }) => (
+  <div className="border-b border-[#d9d9d9] mb-6">
+    <nav className="-mb-px flex space-x-6 overflow-x-auto">
+      {children}
+    </nav>
+  </div>
+);
+
+export const Tab = ({ children, isActive, onClick }) => (
+  <button
+    type="button"
+    className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+      isActive
+        ? 'border-[#333333] text-[#333333]'
+        : 'border-transparent text-[#666666] hover:text-[#333333] hover:border-[#d9d9d9]'
+    }`}
+    onClick={onClick}
+  >
+    {children}
+  </button>
+);
+
+export const TabPanels = ({ children }) => (
+  <div>
+    {children}
+  </div>
+);
+
+export const TabPanel = ({ children, isActive }) => (
+  <div className={isActive ? 'block' : 'hidden'}>
+    {children}
+  </div>
+);
+
+// Avatar Component
+export const Avatar = ({ src, alt, size = 'md', fallback }) => {
+  const sizes = {
+    sm: 'w-8 h-8',
+    md: 'w-10 h-10',
+    lg: 'w-12 h-12',
+  };
+
+  return (
+    <div className={`${sizes[size]} rounded-full overflow-hidden bg-[#f5f5f5] flex items-center justify-center`}>
+      {src ? (
+        <img src={src} alt={alt} className="w-full h-full object-cover" />
+      ) : (
+        <span className="text-[#666666] font-medium">{fallback}</span>
+      )}
+    </div>
+  );
+};
+
+// Pagination Component
+export const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pages.push(i);
+  }
+
+  return (
+    <div className="flex justify-center items-center space-x-2">
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Previous
+      </Button>
+      {pages.map(page => (
+        <Button
+          key={page}
+          variant={page === currentPage ? 'primary' : 'secondary'}
+          size="sm"
+          onClick={() => onPageChange(page)}
+        >
+          {page}
+        </Button>
+      ))}
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        Next
+      </Button>
+    </div>
+  );
+};
+
+// FilePreview Component
+export const FilePreview = ({ file, onRemove }) => (
+  <div className="flex items-center justify-between p-3 bg-[#f9f9f9] rounded-lg">
+    <div className="flex items-center space-x-3">
+      <div className="w-8 h-8 bg-[#e8e8e8] rounded flex items-center justify-center">
+        📄
+      </div>
+      <div>
+        <p className="text-sm font-medium text-[#333333]">{file.name}</p>
+        <p className="text-xs text-[#666666]">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+      </div>
+    </div>
+    <Button variant="danger" size="sm" onClick={onRemove}>
+      ✕
+    </Button>
+  </div>
+);
+
+// CommentList Component
+export const CommentList = ({ comments, onAddComment, canAddComment }) => (
+  <div className="space-y-4">
+    {comments.map(comment => (
+      <div key={comment._id} className="border border-[#d9d9d9] rounded-lg p-4">
+        <div className="flex items-start space-x-3">
+          <Avatar fallback={comment.author?.name?.charAt(0) || 'U'} size="sm" />
+          <div className="flex-1">
+            <div className="flex items-center space-x-2 mb-1">
+              <span className="font-medium text-[#333333]">{comment.author?.name || 'Unknown'}</span>
+              <span className="text-xs text-[#666666]">{new Date(comment.createdAt).toLocaleDateString()}</span>
+            </div>
+            <p className="text-[#666666]">{comment.text}</p>
+          </div>
+        </div>
+      </div>
+    ))}
+    {canAddComment && (
+      <CommentForm onSubmit={onAddComment} />
+    )}
+  </div>
+);
+
+// CommentForm Component
+export const CommentForm = ({ onSubmit }) => {
+  const [comment, setComment] = React.useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (comment.trim()) {
+      onSubmit(comment);
+      setComment('');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="border border-[#d9d9d9] rounded-lg p-4">
+      <Textarea
+        placeholder="Add a comment..."
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        rows={3}
+      />
+      <div className="flex justify-end mt-3">
+        <Button type="submit" size="sm" disabled={!comment.trim()}>
+          Add Comment
+        </Button>
+      </div>
+    </form>
+  );
+};
+
+// StatusBadge Component
+export const StatusBadge = ({ status }) => {
+  const statusConfig = {
+    open: { label: 'Open', className: 'bg-[#fef3c7] text-[#92400e]' },
+    'in-progress': { label: 'In Progress', className: 'bg-[#dbeafe] text-[#1e40af]' },
+    resolved: { label: 'Resolved', className: 'bg-[#d1fae5] text-[#065f46]' },
+    closed: { label: 'Closed', className: 'bg-[#f3f4f6] text-[#374151]' },
+  };
+
+  const config = statusConfig[status] || { label: status, className: 'bg-[#f3f4f6] text-[#374151]' };
+
+  return (
+    <Badge className={config.className}>
+      {config.label}
+    </Badge>
+  );
+};
+
+// PriorityBadge Component
+export const PriorityBadge = ({ priority }) => {
+  const priorityConfig = {
+    low: { label: 'Low', className: 'bg-[#f0fdf4] text-[#166534]' },
+    medium: { label: 'Medium', className: 'bg-[#fef3c7] text-[#92400e]' },
+    high: { label: 'High', className: 'bg-[#fee2e2] text-[#991b1b]' },
+  };
+
+  const config = priorityConfig[priority] || { label: priority, className: 'bg-[#f3f4f6] text-[#374151]' };
+
+  return (
+    <Badge className={config.className}>
+      {config.label}
+    </Badge>
   );
 };

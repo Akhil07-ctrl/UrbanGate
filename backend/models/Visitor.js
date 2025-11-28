@@ -2,6 +2,11 @@ import mongoose from 'mongoose';
 
 const visitorSchema = new mongoose.Schema(
   {
+    communityId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Community',
+      required: true
+    },
     guestName: {
       type: String,
       required: [true, 'Please provide guest name'],

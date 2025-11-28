@@ -1,13 +1,18 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { SocketProvider } from './context/SocketContext';
 import { NotificationCenter } from './components/NotificationCenter';
 import { Layout } from './components/Layout';
+import ErrorBoundary from './components/ErrorBoundary';
 import { Welcome } from './pages/Welcome';
+import { FeaturesPage } from './pages/FeaturesPage';
+import { BenefitsPage } from './pages/BenefitsPage';
+import { AboutPage } from './pages/AboutPage';
+import { ContactPage } from './pages/ContactPage';
 import { Login, Register } from './pages/Auth';
 import { Dashboard } from './pages/Dashboard';
 import { Communities } from './pages/Communities';
@@ -19,6 +24,7 @@ import { Parking } from './pages/Parking';
 import { Facilities } from './pages/Facilities';
 import { Payments } from './pages/Payments';
 import { Polls } from './pages/Polls';
+
 import './index.css';
 
 // ProtectedRoute component
@@ -42,13 +48,17 @@ const AppContent = () => {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/welcome" element={user ? <Navigate to="/" replace /> : <Welcome />} />
-      <Route path="/login" element={!user ? <Login /> : <Navigate to="/" replace />} />
-      <Route path="/register" element={!user ? <Register /> : <Navigate to="/" replace />} />
+      <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Welcome />} />
+      <Route path="/features" element={<FeaturesPage />} />
+      <Route path="/benefits" element={<BenefitsPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" replace />} />
+      <Route path="/register" element={!user ? <Register /> : <Navigate to="/dashboard" replace />} />
 
       {/* Protected Routes */}
       <Route
-        path="/"
+        path="/dashboard"
         element={
           user ? (
             <ProtectedRoute>
@@ -57,7 +67,7 @@ const AppContent = () => {
               </Layout>
             </ProtectedRoute>
           ) : (
-            <Navigate to="/welcome" replace />
+            <Navigate to="/login" replace />
           )
         }
       />
@@ -169,27 +179,31 @@ const AppContent = () => {
 
 export default function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <NotificationProvider>
-          <SocketProvider>
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop={true}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="light"
-            />
-            <NotificationCenter />
-            <AppContent />
-          </SocketProvider>
-        </NotificationProvider>
-      </AuthProvider>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <NotificationProvider>
+            <SocketProvider>
+              <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={true}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+              />
+              <NotificationCenter />
+              <ErrorBoundary>
+                <AppContent />
+              </ErrorBoundary>
+            </SocketProvider>
+          </NotificationProvider>
+        </AuthProvider>
+      </Router>
+    </ErrorBoundary>
   );
 }

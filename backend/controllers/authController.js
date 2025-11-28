@@ -1,13 +1,28 @@
 import User from '../models/User.js';
 import { generateToken } from '../utils/helpers.js';
+import { validateEmail, sanitizeInput } from '../utils/validation.js';
 
 export const register = async (req, res, next) => {
   try {
-    const { name, email, password, role, phone } = req.body;
+    let { name, email, password, role, phone } = req.body;
 
     // Validate input
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: 'Please provide name, email, password, and role' });
+    }
+
+    // Sanitize inputs
+    name = sanitizeInput(name);
+    email = email.toLowerCase().trim();
+
+    // Validate email format
+    if (!validateEmail(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
     }
 
     // Validate role
@@ -27,7 +42,7 @@ export const register = async (req, res, next) => {
       email,
       password,
       role,
-      phone
+      phone: phone ? sanitizeInput(phone) : undefined
     });
 
     await user.save();
@@ -53,10 +68,16 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password required' });
+    }
+
+    // Sanitize and validate email
+    email = email.toLowerCase().trim();
+    if (!validateEmail(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
     }
 
     // Find user and include password

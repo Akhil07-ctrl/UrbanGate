@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Button, Modal, Input, Textarea, Select, Loading, EmptyState, Badge } from '../components/UI';
+import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+
+import { Card, Button, Loading, EmptyState, Badge, Modal, Input } from '../components/UI';
+import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
 export const Polls = () => {
+  const { user } = useAuth();
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -26,6 +30,17 @@ export const Polls = () => {
       setPolls(response.data.polls || []);
     } catch (error) {
       console.error('Failed to fetch polls', error);
+      if (error.response?.status === 400) {
+        toast.error('You must be part of a community to view polls', {
+          position: 'top-right',
+          autoClose: 3000
+        });
+      } else {
+        toast.error('Failed to fetch polls', {
+          position: 'top-right',
+          autoClose: 3000
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -34,22 +49,76 @@ export const Polls = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/polls', formData);
+      // Filter out empty options
+      const validOptions = formData.options.filter(opt => opt.trim() !== '');
+      if (validOptions.length < 2) {
+        toast.error('Please provide at least 2 options', {
+          position: 'top-right',
+          autoClose: 3000
+        });
+        return;
+      }
+
+      await api.post('/polls', {
+        ...formData,
+        options: validOptions
+      });
+      toast.success('Poll created successfully', {
+        position: 'top-right',
+        autoClose: 3000
+      });
       setFormData({ question: '', description: '', options: ['', ''], endsAt: '' });
       setShowForm(false);
       fetchPolls();
     } catch (error) {
-      console.error('Failed to create poll', error);
+      toast.error(error.response?.data?.message || 'Failed to create poll', {
+        position: 'top-right',
+        autoClose: 3000
+      });
     }
   };
 
   const handleVote = async (pollId, optionIndex) => {
     try {
       await api.post(`/polls/${pollId}/vote`, { optionIndex });
+      toast.success('Vote recorded successfully', {
+        position: 'top-right',
+        autoClose: 2000
+      });
       setUserVotes({ ...userVotes, [pollId]: optionIndex });
       fetchPolls();
     } catch (error) {
-      console.error('Failed to vote', error);
+      toast.error(error.response?.data?.message || 'Failed to vote', {
+        position: 'top-right',
+        autoClose: 3000
+      });
+    }
+  };
+
+  const handleClosePoll = async (pollId) => {
+    try {
+      await api.post(`/polls/${pollId}/close`);
+      toast.success('Poll closed successfully', {
+        position: 'top-right',
+        autoClose: 3000
+      });
+      fetchPolls();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to close poll', {
+        position: 'top-right',
+        autoClose: 3000
+      });
+    }
+  };
+
+  const addOption = () => {
+    setFormData({ ...formData, options: [...formData.options, ''] });
+  };
+
+  const removeOption = (index) => {
+    if (formData.options.length > 2) {
+      const newOptions = formData.options.filter((_, i) => i !== index);
+      setFormData({ ...formData, options: newOptions });
     }
   };
 
@@ -71,6 +140,9 @@ export const Polls = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-text">Community Polls</h1>
+        {user?.role === 'admin' && (
+          <Button onClick={() => setShowForm(true)}>+ Create Poll</Button>
+        )}
       </div>
 
       {/* Polls List */}
@@ -126,9 +198,20 @@ export const Polls = () => {
                     })}
                   </div>
 
-                  <p className="text-xs text-textLight text-center">
-                    Total Votes: {totalVotes} • {poll.status === 'active' ? 'Voting Active' : 'Voting Closed'}
-                  </p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs text-textLight">
+                      Total Votes: {totalVotes} • {poll.status === 'active' ? 'Voting Active' : 'Voting Closed'}
+                    </p>
+                    {user?.role === 'admin' && poll.status === 'active' && (
+                      <Button
+                        onClick={() => handleClosePoll(poll._id)}
+                        variant="secondary"
+                        size="sm"
+                      >
+                        Close Poll
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </Card>
             );
@@ -136,6 +219,100 @@ export const Polls = () => {
         </div>
       ) : (
         <EmptyState title="No Polls" description="Check back later for new polls" icon="🗳️" />
+      )}
+
+      {/* Create Poll Modal (Admin) */}
+      {user?.role === 'admin' && (
+        <Modal
+          isOpen={showForm}
+          title="Create Poll"
+          onClose={() => {
+            setShowForm(false);
+            setFormData({ question: '', description: '', options: ['', ''], endsAt: '' });
+          }}
+        >
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Question"
+              value={formData.question}
+              onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+              required
+              placeholder="What is your question?"
+            />
+
+            <div>
+              <label className="block text-sm font-medium text-[#333333] mb-2">Description</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Add more details about this poll..."
+                className="w-full px-4 py-2 border border-[#d9d9d9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333333]"
+                rows="3"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[#333333] mb-2">Options</label>
+              {formData.options.map((option, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <Input
+                    value={option}
+                    onChange={(e) => {
+                      const newOptions = [...formData.options];
+                      newOptions[index] = e.target.value;
+                      setFormData({ ...formData, options: newOptions });
+                    }}
+                    required
+                    placeholder={`Option ${index + 1}`}
+                  />
+                  {formData.options.length > 2 && (
+                    <Button
+                      type="button"
+                      onClick={() => removeOption(index)}
+                      variant="danger"
+                      size="sm"
+                    >
+                      ×
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                type="button"
+                onClick={addOption}
+                variant="secondary"
+                size="sm"
+                className="w-full"
+              >
+                + Add Option
+              </Button>
+            </div>
+
+            <Input
+              label="End Date (Optional)"
+              type="datetime-local"
+              value={formData.endsAt}
+              onChange={(e) => setFormData({ ...formData, endsAt: e.target.value })}
+            />
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                onClick={() => {
+                  setShowForm(false);
+                  setFormData({ question: '', description: '', options: ['', ''], endsAt: '' });
+                }}
+                variant="secondary"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" className="flex-1">
+                Create Poll
+              </Button>
+            </div>
+          </form>
+        </Modal>
       )}
     </div>
   );

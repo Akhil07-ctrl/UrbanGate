@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
 import { useAuth } from '../context/AuthContext';
-import { Card, Button, Input, Alert, Select } from '../components/UI';
+import { Card, Button, Input, Select } from '../components/UI';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 
@@ -23,7 +24,7 @@ export const Login = () => {
         position: 'top-right',
         autoClose: 2000
       });
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       toast.error(err.message || 'Login failed', {
         position: 'top-right',
@@ -84,9 +85,9 @@ export const Login = () => {
                 </label>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full py-2.5 font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors" 
+              <Button
+                type="submit"
+                className="w-full py-2.5 font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                 disabled={loading}
               >
                 {loading ? 'Signing in...' : 'Sign In'}
@@ -144,7 +145,7 @@ export const Register = () => {
         position: 'top-right',
         autoClose: 2000
       });
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       toast.error(err.message || 'Registration failed', {
         position: 'top-right',
@@ -218,9 +219,9 @@ export const Register = () => {
                 ]}
               />
 
-              <Button 
-                type="submit" 
-                className="w-full py-2.5 font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors" 
+              <Button
+                type="submit"
+                className="w-full py-2.5 font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                 disabled={loading}
               >
                 {loading ? 'Creating Account...' : 'Register'}

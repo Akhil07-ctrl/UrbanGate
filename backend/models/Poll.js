@@ -2,6 +2,11 @@ import mongoose from 'mongoose';
 
 const pollSchema = new mongoose.Schema(
   {
+    communityId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Community',
+      required: true
+    },
     question: {
       type: String,
       required: [true, 'Please provide a question'],

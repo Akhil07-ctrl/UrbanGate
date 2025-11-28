@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { Card, Button, Input, Loading, EmptyState, Alert, Badge, Modal } from '../components/UI';
+
+import { Card, Button, Input, Loading, EmptyState, Badge, Modal } from '../components/UI';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { useSocket } from '../hooks/useSocket';
@@ -183,97 +184,114 @@ export const CommunityManagement = () => {
 
         <Card>
           <div className="text-center py-8">
-            <h2 className="text-2xl font-bold text-text mb-4">No Community Created Yet</h2>
-            <p className="text-textLight mb-6">Create a community to manage residents and security guards</p>
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              className="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700"
-            >
-              + Create Community
-            </Button>
+            {user?.role === 'admin' ? (
+              <>
+                <h2 className="text-2xl font-bold text-text mb-4">No Community Created Yet</h2>
+                <p className="text-textLight mb-6">Create a community to manage residents and security guards</p>
+                <Button
+                  onClick={() => setShowCreateModal(true)}
+                  className="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  + Create Community
+                </Button>
+              </>
+            ) : (
+              <>
+                <h2 className="text-2xl font-bold text-text mb-4">Access Restricted</h2>
+                <p className="text-textLight mb-6">
+                  Only community administrators can create and manage communities.
+                  Please contact your community admin or register as an admin to get started.
+                </p>
+                <div className="text-sm text-textLight">
+                  <p>Your current role: <span className="font-semibold capitalize">{user?.role}</span></p>
+                </div>
+              </>
+            )}
           </div>
         </Card>
 
-        {/* Create Community Modal */}
-        <Modal
-          isOpen={showCreateModal}
-          title="Create New Community"
-          onClose={() => setShowCreateModal(false)}
-        >
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-[#333333] mb-2">
-                Community Name *
-              </label>
-              <Input
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                placeholder="e.g., Green Valley Apartments"
-              />
+        {/* Create Community Modal - Only render for admins */}
+        {user?.role === 'admin' && (
+          <Modal
+            isOpen={showCreateModal}
+            title="Create New Community"
+            onClose={() => setShowCreateModal(false)}
+          >
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#333333] mb-2">
+                  Community Name *
+                </label>
+                <Input
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="e.g., Green Valley Apartments"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#333333] mb-2">
+                  Description *
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Describe your community..."
+                  className="w-full px-4 py-2 border border-[#d9d9d9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333333]"
+                  rows="3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#333333] mb-2">
+                  Location *
+                </label>
+                <Input
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  placeholder="e.g., Downtown, New York"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#333333] mb-2">
+                  Facilities (comma-separated)
+                </label>
+                <textarea
+                  value={formData.facilities}
+                  onChange={(e) => setFormData({ ...formData, facilities: e.target.value })}
+                  placeholder="e.g., Gym, Swimming Pool, Basketball Court"
+                  className="w-full px-4 py-2 border border-[#d9d9d9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333333]"
+                  rows="2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#333333] mb-2">
+                  Community Rules (comma-separated)
+                </label>
+                <textarea
+                  value={formData.rules}
+                  onChange={(e) => setFormData({ ...formData, rules: e.target.value })}
+                  placeholder="e.g., No noise after 10 PM, Keep common areas clean"
+                  className="w-full px-4 py-2 border border-[#d9d9d9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333333]"
+                  rows="2"
+                />
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setShowCreateModal(false)}
+                  variant="secondary"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCreateCommunity}
+                  className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  Create Community
+                </Button>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-[#333333] mb-2">
-                Description *
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                placeholder="Describe your community..."
-                className="w-full px-4 py-2 border border-[#d9d9d9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333333]"
-                rows="3"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#333333] mb-2">
-                Location *
-              </label>
-              <Input
-                value={formData.location}
-                onChange={(e) => setFormData({...formData, location: e.target.value})}
-                placeholder="e.g., Downtown, New York"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#333333] mb-2">
-                Facilities (comma-separated)
-              </label>
-              <textarea
-                value={formData.facilities}
-                onChange={(e) => setFormData({...formData, facilities: e.target.value})}
-                placeholder="e.g., Gym, Swimming Pool, Basketball Court"
-                className="w-full px-4 py-2 border border-[#d9d9d9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333333]"
-                rows="2"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#333333] mb-2">
-                Community Rules (comma-separated)
-              </label>
-              <textarea
-                value={formData.rules}
-                onChange={(e) => setFormData({...formData, rules: e.target.value})}
-                placeholder="e.g., No noise after 10 PM, Keep common areas clean"
-                className="w-full px-4 py-2 border border-[#d9d9d9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333333]"
-                rows="2"
-              />
-            </div>
-            <div className="flex gap-3">
-              <Button
-                onClick={() => setShowCreateModal(false)}
-                variant="secondary"
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleCreateCommunity}
-                className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
-              >
-                Create Community
-              </Button>
-            </div>
-          </div>
-        </Modal>
+          </Modal>
+        )}
       </div>
     );
   }
@@ -466,87 +484,6 @@ export const CommunityManagement = () => {
               className="flex-1"
             >
               Reject
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Create Community Modal */}
-      <Modal
-        isOpen={showCreateModal}
-        title="Create New Community"
-        onClose={() => setShowCreateModal(false)}
-      >
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-[#333333] mb-2">
-              Community Name *
-            </label>
-            <Input
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              placeholder="e.g., Green Valley Apartments"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#333333] mb-2">
-              Description *
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
-              placeholder="Describe your community..."
-              className="w-full px-4 py-2 border border-[#d9d9d9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333333]"
-              rows="3"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#333333] mb-2">
-              Location *
-            </label>
-            <Input
-              value={formData.location}
-              onChange={(e) => setFormData({...formData, location: e.target.value})}
-              placeholder="e.g., Downtown, New York"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#333333] mb-2">
-              Facilities (comma-separated)
-            </label>
-            <textarea
-              value={formData.facilities}
-              onChange={(e) => setFormData({...formData, facilities: e.target.value})}
-              placeholder="e.g., Gym, Swimming Pool, Basketball Court"
-              className="w-full px-4 py-2 border border-[#d9d9d9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333333]"
-              rows="2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#333333] mb-2">
-              Community Rules (comma-separated)
-            </label>
-            <textarea
-              value={formData.rules}
-              onChange={(e) => setFormData({...formData, rules: e.target.value})}
-              placeholder="e.g., No noise after 10 PM, Keep common areas clean"
-              className="w-full px-4 py-2 border border-[#d9d9d9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333333]"
-              rows="2"
-            />
-          </div>
-          <div className="flex gap-3">
-            <Button
-              onClick={() => setShowCreateModal(false)}
-              variant="secondary"
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreateCommunity}
-              className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
-            >
-              Create Community
             </Button>
           </div>
         </div>

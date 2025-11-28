@@ -7,7 +7,7 @@ import { io } from '../server.js';
 export const createCommunity = async (req, res) => {
   try {
     const { name, description, location, facilities, rules } = req.body;
-    const adminId = req.user.id;
+    const adminId = req.user.userId;
 
     // Check if community already exists
     const existingCommunity = await Community.findOne({ name });
@@ -107,7 +107,7 @@ export const getCommunityDetails = async (req, res) => {
 export const requestJoinCommunity = async (req, res) => {
   try {
     const { communityId, flatNumber } = req.body;
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const userRole = req.user.role;
 
     // Validate flatNumber
@@ -174,7 +174,7 @@ export const requestJoinCommunity = async (req, res) => {
 export const getJoinRequests = async (req, res) => {
   try {
     const { communityId, status = 'pending' } = req.query;
-    const adminId = req.user.id;
+    const adminId = req.user.userId;
 
     // Verify admin owns the community
     const community = await Community.findOne({
@@ -204,7 +204,7 @@ export const getJoinRequests = async (req, res) => {
 export const approveJoinRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const adminId = req.user.id;
+    const adminId = req.user.userId;
 
     const joinRequest = await JoinRequest.findById(requestId)
       .populate('userId')
@@ -262,7 +262,7 @@ export const rejectJoinRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
     const { rejectionReason } = req.body;
-    const adminId = req.user.id;
+    const adminId = req.user.userId;
 
     const joinRequest = await JoinRequest.findById(requestId).populate('communityId');
 
@@ -301,7 +301,7 @@ export const rejectJoinRequest = async (req, res) => {
 export const removeMember = async (req, res) => {
   try {
     const { communityId, memberId } = req.params;
-    const adminId = req.user.id;
+    const adminId = req.user.userId;
 
     const community = await Community.findOne({
       _id: communityId,
@@ -344,7 +344,7 @@ export const removeMember = async (req, res) => {
 // Get user's community
 export const getUserCommunity = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const user = await User.findById(userId).populate('communityId');
 
@@ -353,8 +353,8 @@ export const getUserCommunity = async (req, res) => {
     }
 
     const community = await Community.findById(user.communityId)
-      .populate('adminId', 'name email')
-      .populate('members.userId', 'name email role');
+      .populate('adminId', 'name email phone profileImage')
+      .populate('members.userId', 'name email role phone profileImage');
 
     res.json({ community });
   } catch (error) {
@@ -362,11 +362,68 @@ export const getUserCommunity = async (req, res) => {
   }
 };
 
+// Get community members (for group view)
+export const getCommunityMembers = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+
+    if (!user || !user.communityId) {
+      return res.status(404).json({ message: 'User not in any community yet' });
+    }
+
+    const community = await Community.findById(user.communityId)
+      .populate('members.userId', 'name email role phone profileImage')
+      .populate('adminId', 'name email phone profileImage');
+
+    if (!community) {
+      return res.status(404).json({ message: 'Community not found' });
+    }
+
+    // Return all active members
+    const members = community.members
+      .filter(m => m.isActive)
+      .map(m => ({
+        _id: m.userId._id,
+        name: m.userId.name,
+        email: m.userId.email,
+        role: m.role,
+        phone: m.userId.phone,
+        profileImage: m.userId.profileImage,
+        flatNumber: m.flatNumber,
+        joinedAt: m.joinedAt
+      }));
+
+    // Add admin to members list if not already included
+    const adminInMembers = members.some(m => m._id.toString() === community.adminId._id.toString());
+    if (!adminInMembers) {
+      members.unshift({
+        _id: community.adminId._id,
+        name: community.adminId.name,
+        email: community.adminId.email,
+        role: 'admin',
+        phone: community.adminId.phone,
+        profileImage: community.adminId.profileImage,
+        flatNumber: null,
+        joinedAt: community.createdAt
+      });
+    }
+
+    res.json({
+      members,
+      totalMembers: members.length,
+      communityName: community.name
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching community members', error: error.message });
+  }
+};
+
 // Update community (Admin only)
 export const updateCommunity = async (req, res) => {
   try {
     const { communityId } = req.params;
-    const adminId = req.user.id;
+    const adminId = req.user.userId;
     const { name, description, location, facilities, rules } = req.body;
 
     const community = await Community.findOne({
@@ -399,7 +456,7 @@ export const updateCommunity = async (req, res) => {
 export const deleteCommunity = async (req, res) => {
   try {
     const { communityId } = req.params;
-    const adminId = req.user.id;
+    const adminId = req.user.userId;
 
     const community = await Community.findOne({
       _id: communityId,

@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { Card, Button, Input, Modal, Loading, EmptyState } from '../components/UI';
+import { toast } from 'react-toastify';
+import { Card, Button, Input, Modal, Loading, EmptyState, Badge } from '../components/UI';
 import QRCode from 'qrcode.react';
+import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
 export const VisitorPass = () => {
+  const { user } = useAuth();
   const [passes, setPasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showScanModal, setShowScanModal] = useState(false);
   const [selectedPass, setSelectedPass] = useState(null);
+  const [qrCodeInput, setQrCodeInput] = useState('');
   const [formData, setFormData] = useState({
     guestName: '',
     guestPhone: '',
@@ -27,6 +32,12 @@ export const VisitorPass = () => {
       setPasses(response.data.visitors || []);
     } catch (error) {
       console.error('Failed to fetch passes', error);
+      if (error.response?.status === 400) {
+        toast.error('You must be part of a community to view visitor passes', {
+          position: 'top-right',
+          autoClose: 3000
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -36,11 +47,65 @@ export const VisitorPass = () => {
     e.preventDefault();
     try {
       await api.post('/visitors/create-pass', formData);
+      toast.success('Visitor pass created successfully', {
+        position: 'top-right',
+        autoClose: 3000
+      });
       setFormData({ guestName: '', guestPhone: '', purpose: 'visit', validFrom: '', validUntil: '' });
       setShowForm(false);
       fetchPasses();
     } catch (error) {
-      console.error('Failed to create pass', error);
+      toast.error(error.response?.data?.message || 'Failed to create pass', {
+        position: 'top-right',
+        autoClose: 3000
+      });
+    }
+  };
+
+  const handleScanQR = async (action) => {
+    try {
+      if (!qrCodeInput.trim()) {
+        toast.error('Please enter QR code', {
+          position: 'top-right',
+          autoClose: 3000
+        });
+        return;
+      }
+
+      await api.post('/visitors/scan-qr', {
+        qrCode: qrCodeInput.trim(),
+        action
+      });
+      toast.success(`Visitor ${action}ed successfully`, {
+        position: 'top-right',
+        autoClose: 3000
+      });
+      setQrCodeInput('');
+      setShowScanModal(false);
+      fetchPasses();
+    } catch (error) {
+      toast.error(error.response?.data?.message || `Failed to ${action} visitor`, {
+        position: 'top-right',
+        autoClose: 3000
+      });
+    }
+  };
+
+  const handleDeletePass = async (passId) => {
+    if (!window.confirm('Are you sure you want to delete this visitor pass?')) return;
+
+    try {
+      await api.delete(`/visitors/${passId}`);
+      toast.success('Visitor pass deleted successfully', {
+        position: 'top-right',
+        autoClose: 3000
+      });
+      fetchPasses();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete pass', {
+        position: 'top-right',
+        autoClose: 3000
+      });
     }
   };
 
@@ -62,12 +127,37 @@ export const VisitorPass = () => {
 
   if (loading) return <Loading />;
 
+  // Show access message for admin
+  if (user?.role === 'admin') {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold text-text">Visitor Passes</h1>
+        <Card>
+          <EmptyState
+            title="Admin View"
+            description="Admins can view all visitor passes in their community. Residents can create passes and security can scan QR codes."
+            icon="👤"
+          />
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-text">Visitor Passes</h1>
-        <Button onClick={() => setShowForm(true)}>+ Create Pass</Button>
+        <div className="flex gap-2">
+          {user?.role === 'security' && (
+            <Button onClick={() => setShowScanModal(true)} variant="primary">
+              Scan QR Code
+            </Button>
+          )}
+          {user?.role === 'resident' && (
+            <Button onClick={() => setShowForm(true)}>+ Create Pass</Button>
+          )}
+        </div>
       </div>
 
       {/* Form Modal */}
@@ -150,23 +240,114 @@ export const VisitorPass = () => {
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <p className="text-textLight">Status</p>
-                    <p className="font-semibold text-text">{pass.status}</p>
+                    <Badge
+                      variant={
+                        pass.status === 'checked-out' ? 'error' :
+                        pass.status === 'checked-in' ? 'success' : 'warning'
+                      }
+                    >
+                      {pass.status}
+                    </Badge>
                   </div>
                   <div>
                     <p className="text-textLight">Valid From</p>
                     <p className="font-semibold text-text">{new Date(pass.validFrom).toLocaleDateString()}</p>
                   </div>
+                  {pass.entryTime && (
+                    <div>
+                      <p className="text-textLight">Entry Time</p>
+                      <p className="font-semibold text-text">{new Date(pass.entryTime).toLocaleString()}</p>
+                    </div>
+                  )}
+                  {pass.exitTime && (
+                    <div>
+                      <p className="text-textLight">Exit Time</p>
+                      <p className="font-semibold text-text">{new Date(pass.exitTime).toLocaleString()}</p>
+                    </div>
+                  )}
                 </div>
 
-                <Button onClick={() => downloadQR(pass)} className="w-full" variant="secondary">
-                  Download QR
-                </Button>
+                <div className="flex gap-2">
+                  {user?.role === 'resident' && (
+                    <>
+                      <Button onClick={() => downloadQR(pass)} className="flex-1" variant="secondary">
+                        Download QR
+                      </Button>
+                      <Button
+                        onClick={() => handleDeletePass(pass._id)}
+                        className="flex-1"
+                        variant="danger"
+                      >
+                        Delete
+                      </Button>
+                    </>
+                  )}
+                  {user?.role === 'security' && (
+                    <Button onClick={() => downloadQR(pass)} className="w-full" variant="secondary">
+                      View QR
+                    </Button>
+                  )}
+                </div>
               </div>
             </Card>
           ))}
         </div>
       ) : (
-        <EmptyState title="No Visitor Passes" description="Create a pass for your visitor" icon="👤" />
+        <EmptyState
+          title="No Visitor Passes"
+          description={user?.role === 'resident' ? 'Create a pass for your visitor' : 'No visitor passes available'}
+          icon="👤"
+        />
+      )}
+
+      {/* Scan QR Modal (Security) */}
+      {user?.role === 'security' && (
+        <Modal
+          isOpen={showScanModal}
+          title="Scan Visitor QR Code"
+          onClose={() => {
+            setShowScanModal(false);
+            setQrCodeInput('');
+          }}
+        >
+          <div className="space-y-4">
+            <Input
+              label="QR Code"
+              value={qrCodeInput}
+              onChange={(e) => setQrCodeInput(e.target.value)}
+              placeholder="Enter or scan QR code"
+              autoFocus
+            />
+
+            <div className="flex gap-2">
+              <Button
+                onClick={() => handleScanQR('check-in')}
+                className="flex-1"
+                variant="success"
+              >
+                Check In
+              </Button>
+              <Button
+                onClick={() => handleScanQR('check-out')}
+                className="flex-1"
+                variant="primary"
+              >
+                Check Out
+              </Button>
+            </div>
+
+            <Button
+              onClick={() => {
+                setShowScanModal(false);
+                setQrCodeInput('');
+              }}
+              variant="secondary"
+              className="w-full"
+            >
+              Cancel
+            </Button>
+          </div>
+        </Modal>
       )}
     </div>
   );

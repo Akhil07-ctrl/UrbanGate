@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
+
 import { useAuth } from '../context/AuthContext';
 
 const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
