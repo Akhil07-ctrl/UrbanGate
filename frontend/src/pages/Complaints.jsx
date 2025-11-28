@@ -5,21 +5,21 @@ import { toast } from 'react-toastify';
 import { useDropzone } from 'react-dropzone';
 
 // Components
-import { 
-  Card, 
-  Button, 
-  Input, 
-  Textarea, 
-  Select, 
-  Loading, 
-  EmptyState, 
-  Badge, 
-  Modal, 
-  Tabs, 
-  TabList, 
-  Tab, 
-  TabPanels, 
-  TabPanel, 
+import {
+  Card,
+  Button,
+  Input,
+  Textarea,
+  Select,
+  Loading,
+  EmptyState,
+  Badge,
+  Modal,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
   Avatar,
   Pagination,
   FilePreview,
@@ -30,17 +30,17 @@ import {
 } from '../components/UI';
 
 // Icons
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  X, 
-  Paperclip, 
-  MessageSquare, 
-  CheckCircle, 
-  AlertCircle, 
-  Clock, 
-  User, 
+import {
+  Plus,
+  Search,
+  Filter,
+  X,
+  Paperclip,
+  MessageSquare,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  User,
   ChevronRight,
   Download,
   Trash2,
@@ -100,18 +100,17 @@ const FileUpload = ({ files, onAdd, onRemove, maxFiles = 5 }) => {
 
   return (
     <div className="space-y-2">
-      <div 
-        {...getRootProps()} 
-        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-          isDragActive ? 'border-primary bg-primary/5' : 'border-gray-300 hover:border-primary/50'
-        }`}
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${isDragActive ? 'border-primary bg-primary/5' : 'border-gray-300 hover:border-primary/50'
+          }`}
       >
         <input {...getInputProps()} />
         <div className="flex flex-col items-center justify-center space-y-2">
           <Paperclip className="h-8 w-8 text-gray-400" />
           <p className="text-sm text-gray-500">
-            {isDragActive 
-              ? 'Drop the files here...' 
+            {isDragActive
+              ? 'Drop the files here...'
               : 'Drag & drop files here, or click to select files'}
           </p>
           <p className="text-xs text-gray-400">
@@ -119,12 +118,12 @@ const FileUpload = ({ files, onAdd, onRemove, maxFiles = 5 }) => {
           </p>
         </div>
       </div>
-      
+
       {files.length > 0 && (
         <div className="space-y-2">
           {files.map((file, index) => (
-            <FilePreview 
-              key={index} 
+            <FilePreview
+              key={index}
               file={file}
               onRemove={() => onRemove(index)}
             />
@@ -139,9 +138,9 @@ const FileUpload = ({ files, onAdd, onRemove, maxFiles = 5 }) => {
 const ComplaintCard = ({ complaint, onClick }) => {
   const { _id, title, description, status, priority, createdAt, comments = [] } = complaint;
   const statusConfig = COMPLAINT_STATUS[status] || { label: status, color: 'gray' };
-  
+
   return (
-    <Card 
+    <Card
       className="hover:shadow-md transition-shadow cursor-pointer"
       onClick={() => onClick(complaint)}
     >
@@ -153,7 +152,7 @@ const ComplaintCard = ({ complaint, onClick }) => {
             <PriorityBadge priority={priority} />
           </div>
           <p className="text-gray-600 mt-1 line-clamp-2">{description}</p>
-          
+
           <div className="flex items-center mt-3 text-sm text-gray-500 space-x-4">
             <div className="flex items-center">
               <MessageSquare className="h-4 w-4 mr-1" />
@@ -178,7 +177,7 @@ const ComplaintForm = ({ initialData = {}, onSubmit, onCancel, isSubmitting = fa
     category: initialData.category || '',
     priority: initialData.priority || 'medium',
   });
-  
+
   const [files, setFiles] = useState(initialData.files || []);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -189,7 +188,7 @@ const ComplaintForm = ({ initialData = {}, onSubmit, onCancel, isSubmitting = fa
       ...prev,
       [name]: value
     }));
-    
+
     // Clear error when field is updated
     if (errors[name]) {
       setErrors(prev => ({
@@ -209,33 +208,33 @@ const ComplaintForm = ({ initialData = {}, onSubmit, onCancel, isSubmitting = fa
 
   const validate = () => {
     const newErrors = {};
-    
+
     if (!formData.title.trim()) {
       newErrors.title = 'Title is required';
     }
-    
+
     if (!formData.description.trim()) {
       newErrors.description = 'Description is required';
     }
-    
+
     if (!formData.category) {
       newErrors.category = 'Please select a category';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validate()) {
       return;
     }
-    
+
     try {
       setUploading(true);
-      
+
       // Upload files if any
       let uploadedFiles = [];
       if (files.length > 0) {
@@ -243,17 +242,17 @@ const ComplaintForm = ({ initialData = {}, onSubmit, onCancel, isSubmitting = fa
         files.forEach(file => {
           formData.append('files', file);
         });
-        
+
         const response = await api.upload('/upload', formData);
         uploadedFiles = response.data.files;
       }
-      
+
       // Submit complaint with file URLs
       await onSubmit({
         ...formData,
         files: uploadedFiles
       });
-      
+
     } catch (error) {
       console.error('Error submitting complaint:', error);
       toast.error(error.response?.data?.message || 'Failed to submit complaint');
@@ -277,7 +276,7 @@ const ComplaintForm = ({ initialData = {}, onSubmit, onCancel, isSubmitting = fa
           error={errors.title}
         />
       </div>
-      
+
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
           Description <span className="text-red-500">*</span>
@@ -292,7 +291,7 @@ const ComplaintForm = ({ initialData = {}, onSubmit, onCancel, isSubmitting = fa
           error={errors.description}
         />
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
@@ -313,7 +312,7 @@ const ComplaintForm = ({ initialData = {}, onSubmit, onCancel, isSubmitting = fa
             error={errors.category}
           />
         </div>
-        
+
         <div>
           <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
             Priority
@@ -327,30 +326,30 @@ const ComplaintForm = ({ initialData = {}, onSubmit, onCancel, isSubmitting = fa
           />
         </div>
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Attachments (Optional)
         </label>
-        <FileUpload 
+        <FileUpload
           files={files}
           onAdd={handleFileAdd}
           onRemove={handleFileRemove}
           maxFiles={5}
         />
       </div>
-      
+
       <div className="flex justify-end space-x-3 pt-4">
-        <Button 
-          type="button" 
-          variant="outline" 
+        <Button
+          type="button"
+          variant="outline"
           onClick={onCancel}
           disabled={isSubmitting || uploading}
         >
           Cancel
         </Button>
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           loading={isSubmitting || uploading}
           disabled={isSubmitting || uploading}
         >
@@ -365,7 +364,7 @@ export const Complaints = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   // State
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -379,7 +378,7 @@ export const Complaints = () => {
     category: searchParams.get('category') || '',
     sortBy: searchParams.get('sort') || 'newest',
   });
-  
+
   // Pagination
   const [pagination, setPagination] = useState({
     page: parseInt(searchParams.get('page')) || 1,
@@ -387,12 +386,12 @@ export const Complaints = () => {
     total: 0,
     totalPages: 1,
   });
-  
+
   // Fetch complaints with filters
   const fetchComplaints = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       // Build query params
       const params = new URLSearchParams({
         page: pagination.page,
@@ -403,20 +402,20 @@ export const Complaints = () => {
         ...(filters.sortBy && { sort: filters.sortBy }),
         ...(searchQuery && { search: searchQuery }),
       });
-      
+
       // Update URL
       navigate(`?${params.toString()}`, { replace: true });
-      
+
       // Fetch data
       const response = await api.get(`/complaints?${params}`);
-      
+
       setComplaints(response.data.complaints || []);
       setPagination(prev => ({
         ...prev,
         total: response.data.pagination?.total || 0,
         totalPages: response.data.pagination?.pages || 1,
       }));
-      
+
     } catch (error) {
       console.error('Failed to fetch complaints', error);
       if (error.response?.status === 400) {
@@ -434,12 +433,12 @@ export const Complaints = () => {
       setLoading(false);
     }
   }, [pagination.page, pagination.limit, filters, searchQuery, navigate]);
-  
+
   // Fetch complaints when filters change
   useEffect(() => {
     fetchComplaints();
   }, [fetchComplaints]);
-  
+
   // Handle tab change
   const handleTabChange = (tab) => {
     setSelectedTab(tab);
@@ -452,7 +451,7 @@ export const Complaints = () => {
       page: 1, // Reset to first page when changing tabs
     }));
   };
-  
+
   // Handle search
   const handleSearch = (e) => {
     e.preventDefault();
@@ -461,7 +460,7 @@ export const Complaints = () => {
       page: 1, // Reset to first page when searching
     }));
   };
-  
+
   // Handle page change
   const handlePageChange = (page) => {
     setPagination(prev => ({
@@ -470,7 +469,7 @@ export const Complaints = () => {
     }));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-  
+
   // Handle create/update complaint
   const handleSubmitComplaint = async (data) => {
     try {
@@ -483,11 +482,11 @@ export const Complaints = () => {
         await api.post('/complaints', data);
         toast.success('Complaint submitted successfully');
       }
-      
+
       setShowForm(false);
       setSelectedComplaint(null);
       fetchComplaints();
-      
+
     } catch (error) {
       console.error('Error submitting complaint:', error);
       if (error.response?.status === 400) {
@@ -503,23 +502,23 @@ export const Complaints = () => {
       }
     }
   };
-  
+
   // Handle delete complaint
   const handleDeleteComplaint = async (id) => {
     if (!window.confirm('Are you sure you want to delete this complaint? This action cannot be undone.')) {
       return;
     }
-    
+
     try {
       await api.delete(`/complaints/${id}`);
       toast.success('Complaint deleted successfully');
-      
+
       if (selectedComplaint?._id === id) {
         setSelectedComplaint(null);
       }
-      
+
       fetchComplaints();
-      
+
     } catch (error) {
       console.error('Error deleting complaint:', error);
       toast.error(error.message || 'Failed to delete complaint', {
@@ -528,22 +527,22 @@ export const Complaints = () => {
       });
     }
   };
-  
+
   // Handle status update
   const handleStatusUpdate = async (id, status) => {
     try {
       await api.put(`/complaints/${id}`, { status });
       toast.success(`Complaint marked as ${status}`);
-      
+
       if (selectedComplaint?._id === id) {
         setSelectedComplaint(prev => ({
           ...prev,
           status,
         }));
       }
-      
+
       fetchComplaints();
-      
+
     } catch (error) {
       console.error('Error updating status:', error);
       toast.error(error.message || 'Failed to update status', {
@@ -552,25 +551,25 @@ export const Complaints = () => {
       });
     }
   };
-  
+
   // Handle add comment
   const handleAddComment = async (complaintId, comment) => {
     try {
-      const response = await api.post(`/complaints/${complaintId}/comments`, { 
+      const response = await api.post(`/complaints/${complaintId}/comments`, {
         text: comment,
         isInternal: user.role !== 'resident', // Internal notes for staff/admin
       });
-      
+
       if (selectedComplaint?._id === complaintId) {
         setSelectedComplaint(prev => ({
           ...prev,
           comments: [...(prev.comments || []), response.data.comment],
         }));
       }
-      
+
       fetchComplaints();
       return true;
-      
+
     } catch (error) {
       console.error('Error adding comment:', error);
       toast.error('Failed to add comment');
@@ -582,7 +581,7 @@ export const Complaints = () => {
   if (loading) return <Loading />;
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div className="mb-4 md:mb-0">
           <h1 className="text-2xl font-bold text-gray-900">Complaints</h1>
@@ -590,36 +589,34 @@ export const Complaints = () => {
             {pagination.total} {pagination.total === 1 ? 'complaint' : 'complaints'} found
           </p>
         </div>
-        
+
         <div className="flex space-x-3">
           <Button onClick={() => { setSelectedComplaint(null); setShowForm(true); }}>+ New Complaint</Button>
         </div>
       </div>
-      
+
       {/* Tabs for filtering by status */}
       <div className="mb-6 border-b border-gray-200">
         <nav className="-mb-px flex space-x-6 overflow-x-auto">
           <button
             type="button"
-            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-              selectedTab === 'all'
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${selectedTab === 'all'
                 ? 'border-primary-500 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
+              }`}
             onClick={() => handleTabChange('all')}
           >
             All Complaints
           </button>
-          
+
           {Object.entries(COMPLAINT_STATUS).map(([key, { label, color }]) => (
             <button
               key={key}
               type="button"
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
-                selectedTab === key
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center ${selectedTab === key
                   ? `border-${color}-500 text-${color}-600`
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
               onClick={() => handleTabChange(key)}
             >
               {label}
@@ -630,7 +627,7 @@ export const Complaints = () => {
           ))}
         </nav>
       </div>
-      
+
       {/* Search and filter bar */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
         <form onSubmit={handleSearch} className="space-y-4">
@@ -649,7 +646,7 @@ export const Complaints = () => {
                 />
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <Select
                 value={filters.priority}
@@ -663,7 +660,7 @@ export const Complaints = () => {
                   </option>
                 ))}
               </Select>
-              
+
               <Select
                 value={filters.category}
                 onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
@@ -676,7 +673,7 @@ export const Complaints = () => {
                   </option>
                 ))}
               </Select>
-              
+
               <Select
                 value={filters.sortBy}
                 onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
@@ -686,16 +683,16 @@ export const Complaints = () => {
                 <option value="oldest">Oldest First</option>
                 <option value="priority">Priority (High to Low)</option>
               </Select>
-              
+
               <Button type="submit" variant="outline" className="whitespace-nowrap">
                 <Filter className="h-4 w-4 mr-2" />
                 Apply Filters
               </Button>
-              
+
               {(filters.priority || filters.category || filters.sortBy !== 'newest') && (
-                <Button 
-                  type="button" 
-                  variant="ghost" 
+                <Button
+                  type="button"
+                  variant="ghost"
                   onClick={() => {
                     setFilters({
                       status: selectedTab === 'all' ? '' : selectedTab,
@@ -714,7 +711,7 @@ export const Complaints = () => {
           </div>
         </form>
       </div>
-      
+
       {/* Loading state */}
       {loading ? (
         <div className="flex justify-center items-center h-64">
@@ -747,9 +744,9 @@ export const Complaints = () => {
               {/* Complaints list */}
               <div className="space-y-4 mb-6">
                 {complaints.map((complaint) => (
-                  <ComplaintCard 
-                    key={complaint._id} 
-                    complaint={complaint} 
+                  <ComplaintCard
+                    key={complaint._id}
+                    complaint={complaint}
                     onClick={(complaint) => {
                       setSelectedComplaint(complaint);
                       setShowForm(false);
@@ -757,7 +754,7 @@ export const Complaints = () => {
                   />
                 ))}
               </div>
-              
+
               {/* Pagination */}
               {pagination.totalPages > 1 && (
                 <div className="flex justify-center mt-8">

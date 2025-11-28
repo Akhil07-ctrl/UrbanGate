@@ -134,7 +134,9 @@ export const CommunityManagement = () => {
     }
   };
 
-  const handleCreateCommunity = async () => {
+  const handleCreateCommunity = async (e) => {
+    e.preventDefault();
+    
     if (!formData.name || !formData.description || !formData.location) {
       toast.error('Please fill in all required fields', {
         position: 'top-right',
@@ -143,14 +145,65 @@ export const CommunityManagement = () => {
       return;
     }
 
+    // Debug logging with more details
+    console.log('Creating community with user:', user);
+    console.log('User role:', user?.role);
+    console.log('User ID:', user?._id);
+    console.log('Token exists:', !!localStorage.getItem('token'));
+    console.log('Token value:', localStorage.getItem('token')); // Log full token for debugging (remove in production)
+    
+    // Verify token structure
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const tokenParts = token.split('.');
+        if (tokenParts.length === 3) {
+          const payload = JSON.parse(atob(tokenParts[1]));
+          console.log('Token payload:', payload);
+          console.log('Token expiration:', new Date(payload.exp * 1000));
+          console.log('Token issued at:', new Date(payload.iat * 1000));
+        }
+      } catch (e) {
+        console.error('Error parsing token:', e);
+      }
+    }
+
+    // Check if user is admin before making request
+    if (user?.role !== 'admin') {
+      toast.error('You must be logged in as an administrator to create communities.', {
+        position: 'top-right',
+        autoClose: 5000
+      });
+      console.error('User role is not admin:', user?.role);
+      return;
+    }
+
     try {
-      const response = await api.post('/communities/create', {
+      console.log('Sending request to create community with data:', {
         name: formData.name,
         description: formData.description,
         location: formData.location,
         facilities: formData.facilities ? formData.facilities.split(',').map(f => f.trim()) : [],
         rules: formData.rules ? formData.rules.split(',').map(r => r.trim()) : []
       });
+      
+      // Log request headers
+      console.log('Request headers:', {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')?.substring(0, 30)}...`
+      });
+
+      const response = await api.post('/communities/create', {
+        name: formData.name,
+        description: formData.description,
+        location: formData.location,
+        facilities: formData.facilities ? formData.facilities.split(',').map(f => f.trim()) : [],
+        rules: formData.rules ? formData.rules.split(',').map(r => r.trim()) : [],
+        createdBy: user?._id // Explicitly send the creator ID
+      });
+      
+      console.log('Create community response:', response);
+      
       toast.success(response.data.message, {
         position: 'top-right',
         autoClose: 2000
@@ -165,10 +218,38 @@ export const CommunityManagement = () => {
       });
       fetchCommunityData();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to create community', {
-        position: 'top-right',
-        autoClose: 3000
+      console.error('Create community error:', err);
+      console.error('Error response:', err.response);
+      console.error('Error status:', err.response?.status);
+      console.error('Error data:', err.response?.data);
+      console.error('Error config:', {
+        url: err.config?.url,
+        method: err.config?.method,
+        headers: err.config?.headers,
+        data: err.config?.data
       });
+
+      // More specific error messages
+      if (err.response?.status === 403) {
+        toast.error(`Access denied: ${err.response.data?.message || 'Insufficient permissions'}. Please ensure you are logged in with an admin account.`, {
+          position: 'top-right',
+          autoClose: 5000
+        });
+      } else if (err.response?.status === 401) {
+        toast.error('Authentication failed. Please log in again.', {
+          position: 'top-right',
+          autoClose: 5000
+        });
+        // Clear invalid token
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to create community', {
+          position: 'top-right',
+          autoClose: 3000
+        });
+      }
     }
   };
 

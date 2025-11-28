@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Badge } from './UI';
 
-export const Header = () => {
+export const Header = ({ onMenuToggle }) => {
   const { user, logout } = useAuth();
   const { notifications } = useSocket();
   const navigate = useNavigate();
@@ -15,33 +16,88 @@ export const Header = () => {
 
   return (
     <header className="bg-text text-primary shadow-md">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold">
-          UrbanGate
-        </Link>
-
-        <div className="flex items-center gap-6">
-          <div className="relative">
-            <Link to="/notifications" className="text-primary relative">
-              🔔 Notifications
-              {notifications.length > 0 && (
-                <Badge variant="error" className="absolute -top-2 -right-2 text-xs">
-                  {notifications.length}
-                </Badge>
-              )}
+      <div className="max-w-7xl mx-auto px-4 py-3 md:py-4">
+        {/* Mobile Layout */}
+        <div className="flex md:hidden items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* Mobile menu button */}
+            <button
+              onClick={onMenuToggle}
+              className="text-primary hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white p-1 rounded-md"
+            >
+              <span className="sr-only">Open sidebar</span>
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <Link to="/" className="text-xl font-bold truncate">
+              UrbanGate
             </Link>
           </div>
 
-          {user && (
-            <div className="flex items-center gap-4">
-              <span className="text-sm">
-                {user.name} <Badge variant="primary">{user.role}</Badge>
-              </span>
-              <Button onClick={handleLogout} variant="secondary" size="sm">
-                Logout
-              </Button>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Link to="/notifications" className="text-primary relative p-2">
+                <span className="text-lg">🔔</span>
+                {notifications.length > 0 && (
+                  <Badge variant="error" className="absolute -top-1 -right-1 text-xs min-w-[18px] h-5 flex items-center justify-center">
+                    {notifications.length > 9 ? '9+' : notifications.length}
+                  </Badge>
+                )}
+              </Link>
             </div>
-          )}
+
+            {user && (
+              <div className="flex items-center gap-2">
+                <div className="text-right">
+                  <div className="text-sm font-medium truncate max-w-[80px] text-primary">
+                    {user.name}
+                  </div>
+                  <Badge variant={user.role === 'admin' ? 'error' : 'primary'} className="text-xs font-semibold">
+                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                  </Badge>
+                </div>
+                <Button onClick={handleLogout} variant="secondary" size="sm" className="text-xs px-2 py-1">
+                  Logout
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Desktop Layout */}
+        <div className="hidden md:flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Link to="/" className="text-2xl font-bold">
+              UrbanGate
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <div className="relative">
+              <Link to="/notifications" className="text-primary relative">
+                🔔
+                {notifications.length > 0 && (
+                  <Badge variant="error" className="absolute -top-2 -right-2 text-xs">
+                    {notifications.length}
+                  </Badge>
+                )}
+              </Link>
+            </div>
+
+            {user && (
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-primary font-medium">
+                  {user.name} <Badge variant={user.role === 'admin' ? 'error' : 'primary'} className="font-semibold">
+                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                  </Badge>
+                </span>
+                <Button onClick={handleLogout} variant="secondary" size="sm">
+                  Logout
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>
@@ -105,6 +161,7 @@ export const Sidebar = () => {
 
 export const Layout = ({ children }) => {
   const { user, loading } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   if (loading) {
     return (
@@ -118,12 +175,45 @@ export const Layout = ({ children }) => {
     return children;
   }
 
+  const handleMenuToggle = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
     <div className="min-h-screen bg-secondary">
-      <Header />
+      <Header onMenuToggle={handleMenuToggle} />
+
+      {/* Mobile menu overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setIsMobileMenuOpen(false)} />
+          <div className="fixed inset-y-0 left-0 flex w-full max-w-xs">
+            <div className="w-full max-w-sm bg-secondary border-r border-border">
+              <div className="flex items-center justify-between p-4 border-b border-border">
+                <h2 className="text-lg font-semibold text-text">Menu</h2>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-textLight hover:text-text"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <Sidebar />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex">
-        <Sidebar />
-        <main className="flex-1 p-8">{children}</main>
+        {/* Desktop sidebar */}
+        <div className="hidden md:block">
+          <Sidebar />
+        </div>
+
+        {/* Main content */}
+        <main className="flex-1 p-4 md:p-8 overflow-x-auto">{children}</main>
       </div>
     </div>
   );
