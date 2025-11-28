@@ -1,7 +1,6 @@
 import Complaint from '../models/Complaint.js';
 import User from '../models/User.js';
 import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinary.js';
-import { sendEmail } from '../utils/emailService.js';
 import fs from 'fs';
 
 export const createComplaint = async (req, res, next) => {
@@ -377,6 +376,123 @@ export const deleteComplaint = async (req, res, next) => {
 };
 
 // Additional helper functions
+// Upload additional images to a complaint
+// Get complaints by status
+export const getComplaintsByStatus = async (req, res, next) => {
+  try {
+    const { status } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+
+    // Validate status
+    const validStatuses = ['pending', 'in-progress', 'resolved', 'closed', 'reopened'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid status. Must be one of: ' + validStatuses.join(', ')
+      });
+    }
+
+    // Base query
+    const query = { status };
+
+    // If user is not admin, only show complaints from their community
+    if (req.user.role !== 'admin') {
+      const user = await User.findById(req.user.userId).select('communityId');
+      if (user.communityId) {
+        query.communityId = user.communityId;
+      }
+    }
+
+    // Get paginated complaints
+    const complaints = await Complaint.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .populate('createdBy', 'name email')
+      .populate('assignedTo', 'name email')
+      .populate('communityId', 'name');
+
+    // Get total count for pagination
+    const total = await Complaint.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      count: complaints.length,
+      total,
+      page: parseInt(page),
+      pages: Math.ceil(total / limit),
+      data: complaints
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Upload additional images to a complaint
+export const uploadImages = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const complaint = await Complaint.findById(id);
+
+    if (!complaint) {
+      return res.status(404).json({ message: 'Complaint not found' });
+    }
+
+    // Check if user is authorized (resident who created the complaint or admin/staff)
+    if (complaint.createdBy.toString() !== req.user.userId && 
+        !['admin', 'staff'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Not authorized to upload images to this complaint' });
+    }
+
+    // Handle file uploads if any
+    if (req.files && req.files.length > 0) {
+      try {
+        const uploadPromises = req.files.map(file => 
+          uploadToCloudinary(file.path, 'complaints')
+        );
+        
+        const results = await Promise.all(uploadPromises);
+        const newImages = results.map(result => ({
+          url: result.secure_url,
+          publicId: result.public_id
+        }));
+
+        // Add new images to the complaint
+        complaint.images = [...complaint.images, ...newImages];
+        await complaint.save();
+
+        // Clean up temp files
+        req.files.forEach(file => {
+          fs.unlink(file.path, err => {
+            if (err) console.error('Error deleting temp file:', err);
+          });
+        });
+
+        res.status(200).json({
+          message: 'Images uploaded successfully',
+          images: newImages
+        });
+      } catch (error) {
+        console.error('Error uploading images:', error);
+        // Clean up any uploaded files if there was an error
+        if (req.files) {
+          req.files.forEach(file => {
+            fs.unlink(file.path, err => {
+              if (err) console.error('Error cleaning up temp file:', err);
+            });
+          });
+        }
+        next(error);
+      }
+    } else {
+      res.status(400).json({ message: 'No images provided' });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getComplaintStats = async (req, res, next) => {
   try {
     const stats = await Complaint.aggregate([
