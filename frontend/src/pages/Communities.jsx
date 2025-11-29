@@ -160,13 +160,12 @@ export const Communities = () => {
                   <Badge variant="primary">{community.adminId.name}</Badge>
                 </div>
 
-                <Button
+                <button
                   onClick={() => handleJoinRequest(community._id)}
-                  className="w-full"
-                  variant="primary"
+                  className="w-full px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
                 >
                   Request to Join
-                </Button>
+                </button>
               </Card>
             ))}
           </div>
@@ -202,22 +201,23 @@ export const Communities = () => {
             <p className="text-xs text-textLight mt-1">Enter your flat or apartment number for verification</p>
           </div>
           <div className="flex gap-3">
-            <Button
+            <button
+              type="button"
               onClick={() => {
                 setShowFlatModal(false);
                 setFlatNumber('');
               }}
-              variant="secondary"
-              className="flex-1"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
             >
               Cancel
-            </Button>
-            <Button
+            </button>
+            <button
+              type="button"
               onClick={handleConfirmJoin}
-              className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
+              className="flex-1 px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
             >
               Continue
-            </Button>
+            </button>
           </div>
         </div>
       </Modal>

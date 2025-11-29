@@ -3,11 +3,13 @@ import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Badge } from './UI';
+import { toast } from 'react-toastify';
 
 export const Header = ({ onMenuToggle }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { notifications } = useSocket();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-40">
@@ -91,26 +93,52 @@ export const Header = ({ onMenuToggle }) => {
                         <p className="text-xs text-gray-500 truncate">{user.email}</p>
                       </div>
                       <Link
-                        to="/profile"
+                        to="#"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         role="menuitem"
-                        onClick={() => setIsProfileOpen(false)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setIsProfileOpen(false);
+                          toast.info('Profile functionality will be added soon!', {
+                            position: 'top-right',
+                            autoClose: 3000,
+                          });
+                        }}
                       >
                         Your Profile
                       </Link>
                       <Link
-                        to="/settings"
+                        to="#"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         role="menuitem"
-                        onClick={() => setIsProfileOpen(false)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setIsProfileOpen(false);
+                          toast.info('Settings functionality will be added soon!', {
+                            position: 'top-right',
+                            autoClose: 3000,
+                          });
+                        }}
                       >
                         Settings
                       </Link>
                       <button
-                        onClick={() => {
-                          setIsProfileOpen(false);
-                          logout();
-                          navigate('/login');
+                        onClick={async () => {
+                          try {
+                            await logout();
+                            setIsProfileOpen(false);
+                            navigate('/login');
+                            toast.success('Successfully signed out', {
+                              position: 'top-right',
+                              autoClose: 3000,
+                            });
+                          } catch (error) {
+                            console.error('Logout error:', error);
+                            toast.error('Failed to sign out. Please try again.', {
+                              position: 'top-right',
+                              autoClose: 3000,
+                            });
+                          }
                         }}
                         className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                         role="menuitem"

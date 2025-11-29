@@ -168,28 +168,27 @@ export const VisitorPass = () => {
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
           {user?.role === 'security' && (
-            <Button 
-              onClick={() => setShowScanModal(true)} 
-              variant="primary"
-              className="flex items-center gap-2 w-full sm:w-auto justify-center"
+            <button
+              onClick={() => setShowScanModal(true)}
+              className="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors flex items-center gap-2 w-full sm:w-auto justify-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z" clipRule="evenodd" />
                 <path fillRule="evenodd" d="M8 8a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1zm0 4a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clipRule="evenodd" />
               </svg>
               Scan QR Code
-            </Button>
+            </button>
           )}
           {user?.role === 'resident' && (
-            <Button 
+            <button
               onClick={() => setShowForm(true)}
-              className="flex items-center gap-2 w-full sm:w-auto justify-center"
+              className="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors flex items-center gap-2 w-full sm:w-auto justify-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
               </svg>
               Create Pass
-            </Button>
+            </button>
           )}
         </div>
       </div>
@@ -199,9 +198,9 @@ export const VisitorPass = () => {
         isOpen={showForm} 
         title="Create Visitor Pass" 
         onClose={() => setShowForm(false)}
-        size="lg"
+        className="max-w-2xl"
       >
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <Input
@@ -274,13 +273,23 @@ export const VisitorPass = () => {
             </div>
           </div>
 
-          <div className="pt-2">
-            <Button type="submit" className="w-full py-3 text-base">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors flex items-center justify-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
               </svg>
-              Generate Visitor Pass
-            </Button>
+              Generate Pass
+            </button>
           </div>
         </form>
       </Modal>
@@ -382,39 +391,26 @@ export const VisitorPass = () => {
                   <div className="pt-2">
                     {user?.role === 'resident' ? (
                       <div className="grid grid-cols-2 gap-3">
-                        <Button 
-                          onClick={() => downloadQR(pass)} 
-                          variant="outline" 
-                          className="flex items-center justify-center gap-1.5"
+                        <button
+                          onClick={() => downloadQR(pass)}
+                          className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                          Download
-                        </Button>
-                        <Button
+                          Download QR
+                        </button>
+                        <button
                           onClick={() => handleDeletePass(pass._id)}
-                          variant="danger"
-                          className="flex items-center justify-center gap-1.5"
+                          className="w-full px-3 py-1.5 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
                           Delete
-                        </Button>
+                        </button>
                       </div>
                     ) : (
-                      <Button 
-                        onClick={() => downloadQR(pass)} 
-                        variant="outline" 
-                        className="w-full flex items-center justify-center gap-1.5"
+                      <button
+                        onClick={() => downloadQR(pass)}
+                        className="w-full mt-2 px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
                         View QR Code
-                      </Button>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -453,77 +449,57 @@ export const VisitorPass = () => {
             setShowScanModal(false);
             setQrCodeInput('');
           }}
-          size="md"
+          className="max-w-md"
         >
-          <div className="space-y-5">
-            <div className="text-center">
-              <div className="mx-auto w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center mb-4 border-2 border-dashed border-gray-300">
-                {qrCodeInput ? (
-                  <div className="p-2 bg-white rounded">
-                    <QRCode 
-                      value={qrCodeInput} 
-                      size={140} 
-                      level="H"
-                      fgColor="#1F2937"
-                    />
-                  </div>
-                ) : (
-                  <div className="text-center p-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                    </svg>
-                    <p className="mt-2 text-sm text-gray-500">Scan or enter QR code</p>
-                  </div>
-                )}
-              </div>
-              <Input
-                label="QR Code"
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="qrCodeInput" className="block text-sm font-medium text-gray-700 mb-1">
+                Enter QR Code
+              </label>
+              <input
+                id="qrCodeInput"
+                type="text"
                 value={qrCodeInput}
                 onChange={(e) => setQrCodeInput(e.target.value)}
-                placeholder="Enter or scan QR code"
-                autoFocus
-                className="text-center text-lg font-mono"
+                placeholder="Scan or enter QR code"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
-
             <div className="grid grid-cols-2 gap-3 pt-2">
-              <Button
+              <button
+                type="button"
                 onClick={() => handleScanQR('check-in')}
-                variant="success"
-                size="lg"
-                className="flex items-center justify-center gap-2"
                 disabled={!qrCodeInput.trim()}
+                className="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors flex items-center justify-center gap-2"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
                 Check In
-              </Button>
-              <Button
+              </button>
+              <button
+                type="button"
                 onClick={() => handleScanQR('check-out')}
-                variant="primary"
-                size="lg"
-                className="flex items-center justify-center gap-2"
                 disabled={!qrCodeInput.trim()}
+                className="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors flex items-center justify-center gap-2"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
                 Check Out
-              </Button>
+              </button>
             </div>
 
             <div className="pt-2">
-              <Button
+              <button
                 onClick={() => {
                   setShowScanModal(false);
                   setQrCodeInput('');
                 }}
-                variant="secondary"
-                className="w-full"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
               >
                 Cancel
-              </Button>
+              </button>
             </div>
           </div>
         </Modal>

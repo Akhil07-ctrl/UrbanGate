@@ -12,6 +12,7 @@ export const Facilities = () => {
   const [showBookForm, setShowBookForm] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showBookingsModal, setShowBookingsModal] = useState(false);
+  const [showMyBookingsModal, setShowMyBookingsModal] = useState(false);
   const [formData, setFormData] = useState({
     startTime: '',
     endTime: '',
@@ -36,6 +37,7 @@ export const Facilities = () => {
     try {
       setLoading(true);
       const response = await api.get('/facilities');
+      console.log('Facilities API Response:', response.data); // Debug log
       setFacilities(response.data.facilities || []);
     } catch (error) {
       console.error('Failed to fetch facilities', error);
@@ -149,16 +151,40 @@ export const Facilities = () => {
   if (loading) return <Loading />;
 
   // Get resident's bookings
-  const residentBookings = facilities
-    .flatMap((facility) =>
-      facility.bookings
-        ?.filter((b) => {
+  const residentBookings = (() => {
+    if (user?.role !== 'resident') return [];
+    
+    const bookings = facilities.flatMap((facility) => {
+      const facilityBookings = facility.bookings || [];
+      console.log(`Facility: ${facility.name}`, { 
+        facilityId: facility._id, 
+        bookings: facilityBookings 
+      });
+      
+      return facilityBookings
+        .filter((b) => {
           const bookingUserId = b.residentId?._id || b.residentId;
-          return bookingUserId && bookingUserId.toString() === user?.userId?.toString();
+          const isUserBooking = bookingUserId && bookingUserId.toString() === user?.userId?.toString();
+          console.log('Booking check:', { 
+            bookingId: b._id, 
+            bookingUserId, 
+            currentUserId: user?.userId, 
+            isUserBooking 
+          });
+          return isUserBooking;
         })
-        .map((booking) => ({ ...booking, facilityName: facility.name })) || []
-    )
-    .sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+        .map((booking) => ({
+          ...booking,
+          facilityName: facility.name,
+          facilityId: facility._id,
+          startTime: booking.startTime || booking.bookingDate,
+          endTime: booking.endTime || booking.bookingEndDate
+        }));
+    });
+    
+    console.log('All resident bookings:', bookings);
+    return bookings.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+  })();
 
   return (
     <div className="space-y-6 px-4 sm:px-6 lg:px-8 py-6">
@@ -184,58 +210,102 @@ export const Facilities = () => {
       </div>
 
       {/* Resident's Bookings */}
-      {user?.role === 'resident' && residentBookings.length > 0 && (
-        <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      {user?.role === 'resident' && (
+        <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-xl p-4 sm:p-6 text-white shadow-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              My Upcoming Bookings
+              <span>My Upcoming Bookings</span>
             </h2>
-            <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
-              {residentBookings.length} total
-            </span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="px-2 sm:px-3 py-1 bg-white/20 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
+                {residentBookings.length} total
+              </span>
+              <button 
+                onClick={() => setShowMyBookingsModal(true)}
+                className="px-2 sm:px-3 py-1 bg-white/10 hover:bg-white/20 rounded-full text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+                <span className="hidden sm:inline">View All</span>
+                <span className="sm:hidden">All</span>
+              </button>
+            </div>
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {residentBookings.slice(0, 3).map((booking) => (
-              <div key={booking._id} className="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-semibold text-lg">{booking.facilityName}</p>
-                    <div className="flex items-center gap-2 text-sm text-indigo-100 mt-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span>{new Date(booking.startTime).toLocaleDateString()}</span>
-                      <span className="mx-1">•</span>
-                      <span>{new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+              <div key={booking._id} className="bg-white/10 p-3 sm:p-4 rounded-lg backdrop-blur-sm">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-base sm:text-lg truncate">{booking.facilityName}</p>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-indigo-100 mt-1">
+                      <div className="flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>{new Date(booking.startTime).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 opacity-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                      </div>
                     </div>
                   </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                    booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
-                  }`}>
-                    {booking.status}
-                  </span>
+                  <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 mt-1 sm:mt-0">
+                    <span className={`px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                      booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                      booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {booking.status}
+                    </span>
+                    {booking.status === 'pending' && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm('Are you sure you want to cancel this booking?')) {
+                            handleCancelBooking(booking.facilityId || booking.facility?._id, booking._id);
+                          }
+                        }}
+                        className="text-xs text-red-300 hover:text-white whitespace-nowrap"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
                 </div>
                 {booking.status === 'pending' && (
-                  <div className="mt-3 pt-3 border-t border-white/20">
+                  <div className="mt-2 pt-2 border-t border-white/10">
                     <p className="text-xs text-indigo-100 flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      Waiting for admin approval
+                      <span>Waiting for admin approval</span>
                     </p>
                   </div>
                 )}
               </div>
             ))}
             {residentBookings.length > 3 && (
-              <button className="w-full text-center text-indigo-100 hover:text-white text-sm font-medium mt-2">
-                + {residentBookings.length - 3} more bookings
+              <button 
+                onClick={() => setShowMyBookingsModal(true)}
+                className="w-full text-center text-indigo-100 hover:text-white text-xs sm:text-sm font-medium mt-2 flex items-center justify-center gap-1"
+              >
+                <span>+ {residentBookings.length - 3} more bookings</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </button>
+            )}
+            {residentBookings.length === 0 && (
+              <div className="text-center py-4 text-indigo-100 text-sm">
+                No upcoming bookings. Book a facility to get started.
+              </div>
             )}
           </div>
         </div>
@@ -589,6 +659,82 @@ export const Facilities = () => {
           </form>
         </Modal>
       )}
+
+      {/* My Bookings Modal */}
+      <Modal
+        isOpen={showMyBookingsModal}
+        onClose={() => setShowMyBookingsModal(false)}
+        title="My Bookings"
+        className="w-full max-w-4xl mx-4"
+      >
+        <div className="space-y-4">
+          {residentBookings.length === 0 ? (
+            <EmptyState 
+              title="No Bookings Found"
+              description="You haven't made any facility bookings yet."
+              icon="📅"
+              className="py-8"
+            />
+          ) : (
+            <div className="max-h-[60vh] overflow-y-auto pr-1 -mr-3 sm:mr-0 sm:pr-0">
+              <div className="space-y-3 pr-2">
+                {residentBookings.map((booking) => (
+                  <div 
+                    key={booking._id} 
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-base sm:text-lg text-gray-900">{booking.facilityName}</h3>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-x-4 gap-y-1 text-sm text-gray-600 mt-1">
+                          <div className="flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>{new Date(booking.startTime).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                          </div>
+                        </div>
+                        {booking.notes && (
+                          <p className="mt-2 text-sm text-gray-600">
+                            <span className="font-medium">Notes: </span>
+                            {booking.notes}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex flex-col sm:items-end gap-2">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                          booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                          booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                        </span>
+                        {booking.status === 'pending' && (
+                          <button
+                            onClick={() => {
+                              if (window.confirm('Are you sure you want to cancel this booking?')) {
+                                handleCancelBooking(booking.facilityId || booking.facility?._id, booking._id);
+                              }
+                            }}
+                            className="text-xs text-red-600 hover:text-red-800 font-medium"
+                          >
+                            Cancel Booking
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
 
       {/* Bookings Management Modal (Admin) */}
       {user?.role === 'admin' && selectedFacility && (
