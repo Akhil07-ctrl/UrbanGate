@@ -74,14 +74,14 @@ const PRIORITY_OPTIONS = [
 ];
 
 const CATEGORY_OPTIONS = [
-  'Maintenance',
-  'Security',
-  'Cleanliness',
-  'Parking',
-  'Noise',
-  'Utilities',
-  'Amenities',
-  'Other'
+  { value: 'maintenance', label: 'Maintenance' },
+  { value: 'security', label: 'Security' },
+  { value: 'cleanliness', label: 'Cleanliness' },
+  { value: 'parking', label: 'Parking' },
+  { value: 'noise', label: 'Noise' },
+  { value: 'utilities', label: 'Utilities' },
+  { value: 'amenities', label: 'Amenities' },
+  { value: 'other', label: 'Other' }
 ];
 
 const ITEMS_PER_PAGE = 10;
@@ -266,15 +266,12 @@ const ComplaintForm = ({ initialData = {}, onSubmit, onCancel, isSubmitting = fa
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className={`w-full ${errors.category ? 'border-red-300' : ''}`}
-          >
-            <option value="">Select a category</option>
-            {CATEGORY_OPTIONS.map(category => (
-              <option key={category} value={category.toLowerCase()}>
-                {category}
-              </option>
-            ))}
-          </Select>
+            options={[
+              { value: '', label: 'Select a category' },
+              ...CATEGORY_OPTIONS
+            ]}
+            className={errors.category ? 'border-red-300' : ''}
+          />
           {errors.category && <p className="mt-1 text-sm text-red-600">{errors.category}</p>}
         </div>
         
@@ -287,14 +284,9 @@ const ComplaintForm = ({ initialData = {}, onSubmit, onCancel, isSubmitting = fa
             name="priority"
             value={formData.priority}
             onChange={handleChange}
+            options={PRIORITY_OPTIONS}
             className="w-full"
-          >
-            {PRIORITY_OPTIONS.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
+          />
         </div>
       </div>
       
@@ -305,32 +297,42 @@ const ComplaintForm = ({ initialData = {}, onSubmit, onCancel, isSubmitting = fa
         <FileUpload
           files={files}
           onAdd={handleFileAdd}
-          onRemove={handleFileRemove}
           maxFiles={5}
         />
       </div>
       
-      <div className="flex justify-end space-x-3 pt-4">
-        <Button
+      <div className="flex justify-end gap-3 pt-4">
+        <button
           type="button"
-          variant="outline"
           onClick={onCancel}
           disabled={isSubmitting}
+          className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Cancel
-        </Button>
-        <Button
+        </button>
+        <button
           type="submit"
           disabled={isSubmitting}
-          loading={isSubmitting}
+          className="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]"
         >
-          {initialData._id ? 'Update' : 'Submit'} Complaint
-        </Button>
+          {isSubmitting ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {initialData._id ? 'Updating...' : 'Submitting...'}
+            </>
+          ) : (
+            <>{initialData._id ? 'Update' : 'Submit'} Complaint</>
+          )}
+        </button>
       </div>
     </form>
   );
 };
 
+// ... rest of the code remains the same ...
 // Complaint card component
 const ComplaintCard = ({ complaint, onClick }) => {
   const getStatusBadge = (status) => {
@@ -846,8 +848,8 @@ const Complaints = () => {
                 >
                   <option value="">All Categories</option>
                   {CATEGORY_OPTIONS.map((category) => (
-                    <option key={category} value={category.toLowerCase()}>
-                      {category}
+                    <option key={category.value} value={category.value}>
+                      {category.label}
                     </option>
                   ))}
                 </select>
@@ -1001,8 +1003,8 @@ const Complaints = () => {
                   >
                     <option value="">All Categories</option>
                     {CATEGORY_OPTIONS.map((category) => (
-                      <option key={category} value={category.toLowerCase()}>
-                        {category}
+                      <option key={category.value} value={category.value}>
+                        {category.label}
                       </option>
                     ))}
                   </select>

@@ -157,8 +157,8 @@ export const Parking = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Parking Management</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <h1 className="text-3xl font-bold text-gray-900">Parking Management</h1>
+          <p className="mt-1 text-sm text-gray-500">
             Manage and monitor parking spaces in your community
           </p>
         </div>
@@ -221,8 +221,8 @@ export const Parking = () => {
         <div className="mt-8">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Guest Parking</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <h2 className="text-xl font-bold text-gray-900">Guest Parking</h2>
+              <p className="text-sm text-gray-500">
                 Request guest parking slots for your visitors
               </p>
             </div>
@@ -245,38 +245,37 @@ export const Parking = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {slots.filter((slot) => slot.type === 'guest').map((slot) => (
-              <div key={slot._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden border border-gray-200 dark:border-gray-700">
+              <div key={slot._id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden border border-gray-200">
                 <div className="p-5">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Slot {slot.slotNumber}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      <h3 className="text-lg font-semibold text-gray-900">Slot {slot.slotNumber}</h3>
+                      <p className="text-sm text-gray-500 mt-1">
                         Guest Parking
                       </p>
                     </div>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      slot.isAvailable ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      slot.isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}>
                       {slot.isAvailable ? 'Available' : 'Occupied'}
                     </span>
                   </div>
-                  
-                  <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Pending Requests</p>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="text-xs text-gray-500">Pending Requests</p>
+                          <p className="text-lg font-semibold text-gray-900">
                           {slot.guestRequests.filter((r) => r.status === 'pending').length}
                         </p>
                       </div>
                       <button
                         onClick={() => {
                           setSelectedSlot(slot);
-                          setShowRequestForm(true);
+                          // Add any additional click handling here
                         }}
-                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors"
+                        className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
                       >
-                        Request
+                        View Details
                       </button>
                     </div>
                   </div>
@@ -287,63 +286,26 @@ export const Parking = () => {
         </div>
       )}
 
-      {/* All Slots */}
-      <div className="mt-10">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">All Parking Slots</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {slots.length} total slots • {slots.filter(s => s.isAvailable).length} available
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <select 
-                className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                onChange={(e) => {
-                  // Add filter logic here
-                }}
-              >
-                <option value="all">All Types</option>
-                <option value="resident">Resident</option>
-                <option value="guest">Guest</option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
-                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      {/* All Parking Slots */}
+      <div className="mt-8">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
+          {user?.role === 'admin' ? 'All Parking Slots' : 'Available Slots'}
+        </h2>
+        
         {slots.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {slots.map((slot) => (
-              <div 
-                key={slot._id} 
-                className={`relative bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border ${
-                  slot.isAvailable 
-                    ? 'border-green-200 dark:border-green-900/50' 
-                    : 'border-red-200 dark:border-red-900/50'
-                }`}
-              >
-                {slot.type === 'resident' && !slot.isAvailable && slot.residentId && (
-                  <div className="absolute top-2 right-2 bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                    Assigned
-                  </div>
-                )}
-                
+              <Card key={slot._id} className="overflow-hidden">
                 <div className="p-5">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                      <h3 className="text-lg font-bold text-gray-900">
                         {slot.block ? `${slot.block}-` : ''}{slot.slotNumber}
                       </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-gray-500">
                         {slot.floor ? `Floor ${slot.floor} • ` : ''}
                         <span className={`inline-flex items-center gap-1 ${
-                          slot.type === 'resident' ? 'text-blue-600 dark:text-blue-400' : 'text-purple-600 dark:text-purple-400'
+                          slot.type === 'resident' ? 'text-blue-600' : 'text-purple-600'
                         }`}>
                           {slot.type === 'resident' ? (
                             <>
@@ -355,7 +317,7 @@ export const Parking = () => {
                           ) : (
                             <>
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 12.094A5.973 5.973 0 004 15v1H1v-1a3 3 0 013.75-2.906z" />
+                                <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6z" />
                               </svg>
                               Guest
                             </>
@@ -364,101 +326,63 @@ export const Parking = () => {
                       </p>
                     </div>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      slot.isAvailable 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
-                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                      slot.isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}>
                       {slot.isAvailable ? 'Available' : 'Occupied'}
                     </span>
                   </div>
-
-                  {slot.residentId && (
-                    <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Assigned to</p>
-                      <div className="flex items-center">
-                        <div className="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-medium text-sm">
-                          {slot.residentId.name?.charAt(0) || 'R'}
-                        </div>
-                        <div className="ml-2">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
-                            {slot.residentId.name || 'Resident'}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {slot.residentId.flatNumber ? `Flat ${slot.residentId.flatNumber}` : 'Resident'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    {user?.role === 'admin' && slot.type === 'resident' && !slot.residentId && (
-                      <button
-                        onClick={() => {
-                          setSelectedSlot(slot);
-                          setShowAssignModal(true);
-                        }}
-                        className="w-full py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors flex items-center justify-center gap-1"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6z" />
-                          <path fillRule="evenodd" d="M15 8a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V8z" clipRule="evenodd" />
-                        </svg>
-                        Assign Resident
-                      </button>
-                    )}
-
-                    {user?.role === 'admin' && slot.guestRequests && slot.guestRequests.filter(r => r.status === 'pending').length > 0 && (
-                      <div className="mt-3">
-                        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
-                          <span>Guest Requests</span>
-                          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                            {slot.guestRequests.filter(r => r.status === 'pending').length} Pending
-                          </span>
-                        </div>
-                        <div className="space-y-2">
-                          {slot.guestRequests
-                            .filter(r => r.status === 'pending')
-                            .slice(0, 2)
-                            .map((request, idx) => (
-                              <div key={idx} className="bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg text-xs">
-                                <div className="flex items-center justify-between">
-                                  <span className="font-medium text-gray-700 dark:text-gray-200">
-                                    {request.requestedBy?.name || 'Resident'}
-                                  </span>
-                                  <span className="text-gray-500 dark:text-gray-400">
-                                    {new Date(request.fromDate).toLocaleDateString('short')}
-                                  </span>
-                                </div>
-                                <div className="mt-1 flex items-center justify-between text-gray-500 dark:text-gray-400">
-                                  <span className="flex items-center gap-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    {new Date(request.fromDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(request.toDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                                  </span>
-                                  <button 
-                                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                                    onClick={() => {
-                                      // Handle view details
-                                    }}
-                                  >
-                                    View
-                                  </button>
-                                </div>
-                              </div>
-                          ))}
-                          {slot.guestRequests.filter(r => r.status === 'pending').length > 2 && (
-                            <button className="w-full text-xs text-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mt-1">
-                              +{slot.guestRequests.filter(r => r.status === 'pending').length - 2} more requests
-                            </button>
-                          )}
+                  
+                  <div className="mt-2">
+                    {slot.residentId && (
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <p className="text-xs text-gray-500 mb-1">Assigned to</p>
+                        <div className="flex items-center">
+                          <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium text-sm">
+                            {slot.residentId.name?.charAt(0) || 'R'}
+                          </div>
+                          <div className="ml-2">
+                            <p className="text-sm font-medium text-gray-900">
+                              {slot.residentId.name || 'Resident'}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {slot.residentId.flatNumber ? `Flat ${slot.residentId.flatNumber}` : 'Resident'}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     )}
                   </div>
+
+                  {user?.role === 'admin' && slot.guestRequests && slot.guestRequests.filter(r => r.status === 'pending').length > 0 && (
+                    <div className="mt-3">
+                      <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+                        <span>Guest Requests</span>
+                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                          {slot.guestRequests.filter(r => r.status === 'pending').length} Pending
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          // Handle view requests
+                        }}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        View
+                      </button>
+                    </div>
+                  )}
+                  {slot.guestRequests.filter(r => r.status === 'pending').length > 2 && (
+                    <button 
+                      className="w-full text-xs text-center text-blue-600 hover:text-blue-800 mt-1"
+                      onClick={() => {
+                        // Handle view all requests
+                      }}
+                    >
+                      +{slot.guestRequests.filter(r => r.status === 'pending').length - 2} more requests
+                    </button>
+                  )}
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         ) : (
@@ -506,9 +430,21 @@ export const Parking = () => {
             required
           />
 
-          <Button type="submit" className="w-full">
-            Submit Request
-          </Button>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setShowRequestForm(false)}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit"
+              className="flex-1 px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            >
+              Submit Request
+            </button>
+          </div>
         </form>
       </Modal>
 
@@ -577,20 +513,22 @@ export const Parking = () => {
             )}
 
             <div className="flex gap-3">
-              <Button
+              <button
                 type="button"
                 onClick={() => {
                   setShowCreateSlotModal(false);
                   setSlotFormData({ slotNumber: '', type: 'guest', block: '', floor: '', residentId: '' });
                 }}
-                variant="secondary"
-                className="flex-1"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
               >
                 Cancel
-              </Button>
-              <Button type="submit" className="flex-1">
+              </button>
+              <button 
+                type="submit"
+                className="flex-1 px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+              >
                 Create Slot
-              </Button>
+              </button>
             </div>
           </form>
         </Modal>
@@ -628,21 +566,23 @@ export const Parking = () => {
             </div>
 
             <div className="flex gap-3">
-              <Button
+              <button
                 type="button"
                 onClick={() => {
                   setShowAssignModal(false);
                   setSelectedSlot(null);
                   setSlotFormData({ ...slotFormData, residentId: '' });
                 }}
-                variant="secondary"
-                className="flex-1"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
               >
                 Cancel
-              </Button>
-              <Button type="submit" className="flex-1">
+              </button>
+              <button 
+                type="submit"
+                className="flex-1 px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+              >
                 Assign Slot
-              </Button>
+              </button>
             </div>
           </form>
         </Modal>

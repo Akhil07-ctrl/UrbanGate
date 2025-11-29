@@ -30,20 +30,38 @@ export const Announcements = () => {
       const response = await api.get('/announcements', {
         params: { category: filter || undefined },
       });
-      setAnnouncements(response.data.announcements || []);
+      
+      console.log('Announcements API response:', response.data);
+      
+      if (response.data && Array.isArray(response.data.announcements)) {
+        setAnnouncements(response.data.announcements);
+      } else {
+        console.error('Unexpected response format:', response.data);
+        setAnnouncements([]);
+        toast.error('Received unexpected data format from server', {
+          position: 'top-right',
+          autoClose: 3000
+        });
+      }
     } catch (error) {
-      console.error('Failed to fetch announcements', error);
+      console.error('Failed to fetch announcements:', error);
       if (error.response?.status === 400) {
         toast.error('You must be part of a community to view announcements', {
           position: 'top-right',
           autoClose: 3000
         });
+      } else if (error.response?.status === 401) {
+        toast.error('Please log in to view announcements', {
+          position: 'top-right',
+          autoClose: 3000
+        });
       } else {
-        toast.error('Failed to fetch announcements', {
+        toast.error(error.response?.data?.message || 'Failed to fetch announcements', {
           position: 'top-right',
           autoClose: 3000
         });
       }
+      setAnnouncements([]);
     } finally {
       setLoading(false);
     }
@@ -51,24 +69,44 @@ export const Announcements = () => {
 
   const handleCreateAnnouncement = async (e) => {
     e.preventDefault();
-    try {
-      await api.post('/announcements', formData);
-      toast.success('Announcement created successfully', {
+    
+    // Basic form validation
+    if (!formData.title.trim() || !formData.content.trim()) {
+      toast.error('Please fill in all required fields', {
         position: 'top-right',
         autoClose: 3000
       });
-      setShowCreateModal(false);
-      setFormData({
-        title: '',
-        content: '',
-        category: 'general',
-        isUrgent: false,
-        expiresAt: '',
-        image: ''
-      });
-      fetchAnnouncements();
+      return;
+    }
+    
+    try {
+      const response = await api.post('/announcements', formData);
+      
+      if (response.data && response.data.announcement) {
+        toast.success('Announcement created successfully', {
+          position: 'top-right',
+          autoClose: 3000
+        });
+        
+        // Reset form and close modal
+        setShowCreateModal(false);
+        setFormData({
+          title: '',
+          content: '',
+          category: 'general',
+          isUrgent: false,
+          expiresAt: '',
+          image: ''
+        });
+        
+        // Refresh the announcements list
+        await fetchAnnouncements();
+      } else {
+        throw new Error('Invalid response from server');
+      }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to create announcement', {
+      console.error('Error creating announcement:', error);
+      toast.error(error.response?.data?.message || 'Failed to create announcement. Please try again.', {
         position: 'top-right',
         autoClose: 3000
       });
@@ -82,8 +120,8 @@ export const Announcements = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Announcements</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <h1 className="text-3xl font-bold text-gray-900">Announcements</h1>
+          <p className="mt-1 text-sm text-gray-500">
             Stay updated with the latest community news and updates
           </p>
         </div>
@@ -116,7 +154,7 @@ export const Announcements = () => {
             className={`px-4 py-2 rounded-full font-medium text-sm transition-all duration-200 whitespace-nowrap flex items-center gap-2 ${
               filter === id 
                 ? 'bg-indigo-600 text-white shadow-md' 
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
             }`}
           >
             <span className="text-base">{icon}</span>
@@ -131,8 +169,8 @@ export const Announcements = () => {
           {announcements.map((announcement) => (
             <div 
               key={announcement._id}
-              className={`group relative bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden ${
-                announcement.isUrgent ? 'ring-2 ring-red-500' : 'border border-gray-200 dark:border-gray-700'
+              className={`group relative bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden ${
+                announcement.isUrgent ? 'ring-2 ring-red-500' : 'border border-gray-200'
               }`}
             >
               {announcement.isUrgent && (
@@ -155,15 +193,15 @@ export const Announcements = () => {
               <div className="p-5">
                 <div className="flex justify-between items-start gap-2 mb-3">
                   <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                    announcement.category === 'emergency' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                    announcement.category === 'event' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                    announcement.category === 'maintenance' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                    announcement.category === 'notice' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' :
-                    'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                    announcement.category === 'emergency' ? 'bg-red-100 text-red-800' :
+                    announcement.category === 'event' ? 'bg-blue-100 text-blue-800' :
+                    announcement.category === 'maintenance' ? 'bg-yellow-100 text-yellow-800' :
+                    announcement.category === 'notice' ? 'bg-purple-100 text-purple-800' :
+                    'bg-gray-100 text-gray-800'
                   }`}>
                     {announcement.category.charAt(0).toUpperCase() + announcement.category.slice(1)}
                   </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                  <span className="text-xs text-gray-500">
                     {new Date(announcement.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'short',
@@ -172,31 +210,31 @@ export const Announcements = () => {
                   </span>
                 </div>
                 
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">
+                <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
                   {announcement.title}
                 </h3>
                 
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">
+                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
                   {announcement.content}
                 </p>
                 
-                <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
                   <div className="flex items-center">
-                    <div className="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-medium">
+                    <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium">
                       {announcement.createdBy?.name?.charAt(0) || 'U'}
                     </div>
                     <div className="ml-2">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      <p className="text-sm font-medium text-gray-900">
                         {announcement.createdBy?.name || 'Unknown'}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500">
                         {announcement.createdBy?.role || 'Resident'}
                       </p>
                     </div>
                   </div>
                   
                   {announcement.expiresAt && new Date(announcement.expiresAt) > new Date() && (
-                    <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 px-2 py-1 rounded-full">
+                    <div className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full">
                       Expires: {new Date(announcement.expiresAt).toLocaleDateString()}
                     </div>
                   )}
@@ -236,23 +274,23 @@ export const Announcements = () => {
             />
 
             <div>
-              <label className="block text-sm font-medium text-[#333333] mb-2">Content</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
               <textarea
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 required
                 placeholder="Announcement content..."
-                className="w-full px-4 py-2 border border-[#d9d9d9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333333]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                 rows="4"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#333333] mb-2">Category</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-2 border border-[#d9d9d9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#333333]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                 required
               >
                 <option value="general">General</option>
@@ -286,13 +324,13 @@ export const Announcements = () => {
                 onChange={(e) => setFormData({ ...formData, isUrgent: e.target.checked })}
                 className="w-4 h-4"
               />
-              <label htmlFor="isUrgent" className="text-sm text-text">
+              <label htmlFor="isUrgent" className="text-sm text-gray-700">
                 Mark as Urgent
               </label>
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button
+              <button
                 type="button"
                 onClick={() => {
                   setShowCreateModal(false);
@@ -305,14 +343,16 @@ export const Announcements = () => {
                     image: ''
                   });
                 }}
-                variant="secondary"
-                className="flex-1"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
               >
                 Cancel
-              </Button>
-              <Button type="submit" className="flex-1">
+              </button>
+              <button 
+                type="submit"
+                className="flex-1 px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+              >
                 Create Announcement
-              </Button>
+              </button>
             </div>
           </form>
         </Modal>

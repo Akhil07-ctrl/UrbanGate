@@ -165,8 +165,8 @@ export const Facilities = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Community Facilities</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <h1 className="text-3xl font-bold text-gray-900">Community Facilities</h1>
+          <p className="mt-1 text-sm text-gray-500">
             Book and manage community facilities for your needs
           </p>
         </div>
@@ -245,14 +245,14 @@ export const Facilities = () => {
       <div className="mt-8">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Available Facilities</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <h2 className="text-xl font-bold text-gray-900">Available Facilities</h2>
+            <p className="text-sm text-gray-500">
               {facilities.length} facilities • Book your preferred time slot
             </p>
           </div>
           <div className="relative">
             <select 
-              className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="appearance-none bg-white border border-gray-300 rounded-lg pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               onChange={(e) => {
                 // Add filter logic here
               }}
@@ -264,7 +264,7 @@ export const Facilities = () => {
               <option value="tennis-court">Tennis Court</option>
               <option value="guest-room">Guest Room</option>
             </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
               <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
@@ -277,7 +277,7 @@ export const Facilities = () => {
             {facilities.map((facility) => (
               <div 
                 key={facility._id} 
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700"
+                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-200"
               >
                 {facility.image ? (
                   <div className="h-48 overflow-hidden">
@@ -292,8 +292,8 @@ export const Facilities = () => {
                     />
                   </div>
                 ) : (
-                  <div className="h-48 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-indigo-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="h-48 bg-gradient-to-br from-indigo-50 to-indigo-100 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                   </div>
@@ -302,8 +302,8 @@ export const Facilities = () => {
                 <div className="p-5">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">{facility.name}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      <h3 className="text-xl font-bold text-gray-900">{facility.name}</h3>
+                      <p className="text-sm text-gray-500 mt-1">
                         {facility.type.charAt(0).toUpperCase() + facility.type.slice(1).replace('-', ' ')}
                       </p>
                     </div>
@@ -312,11 +312,11 @@ export const Facilities = () => {
                     </span>
                   </div>
 
-                  <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+                  <p className="mt-3 text-sm text-gray-600 line-clamp-2">
                     {facility.description || 'No description available'}
                   </p>
 
-                  <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                  <div className="mt-4 pt-4 border-t border-gray-100">
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -352,7 +352,7 @@ export const Facilities = () => {
                             setSelectedFacility(facility);
                             setShowBookingsModal(true);
                           }}
-                          className="flex-1 py-2 px-3 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white text-sm rounded-lg transition-colors flex items-center justify-center gap-1"
+                          className="flex-1 py-2 px-3 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-sm rounded-lg transition-colors flex items-center justify-center gap-1"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -435,21 +435,23 @@ export const Facilities = () => {
             />
 
             <div className="flex gap-3">
-              <Button
+              <button
                 type="button"
                 onClick={() => {
                   setShowBookForm(false);
                   setSelectedFacility(null);
                   setFormData({ startTime: '', endTime: '' });
                 }}
-                variant="secondary"
-                className="flex-1"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
               >
                 Cancel
-              </Button>
-              <Button type="submit" className="flex-1">
+              </button>
+              <button 
+                type="submit"
+                className="flex-1 px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+              >
                 Request Booking
-              </Button>
+              </button>
             </div>
           </form>
         </Modal>
@@ -557,7 +559,7 @@ export const Facilities = () => {
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button
+              <button
                 type="button"
                 onClick={() => {
                   setShowCreateModal(false);
@@ -573,14 +575,16 @@ export const Facilities = () => {
                     }
                   });
                 }}
-                variant="secondary"
-                className="flex-1"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
               >
                 Cancel
-              </Button>
-              <Button type="submit" className="flex-1">
+              </button>
+              <button 
+                type="submit"
+                className="flex-1 px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+              >
                 Create Facility
-              </Button>
+              </button>
             </div>
           </form>
         </Modal>
@@ -635,22 +639,18 @@ export const Facilities = () => {
 
                       {booking.status === 'pending' && (
                         <div className="flex gap-2 pt-2">
-                          <Button
+                          <button
                             onClick={() => handleConfirmBooking(selectedFacility._id, booking._id)}
-                            variant="success"
-                            size="sm"
-                            className="flex-1"
+                            className="flex-1 px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
                           >
                             Confirm
-                          </Button>
-                          <Button
+                          </button>
+                          <button
                             onClick={() => handleCancelBooking(selectedFacility._id, booking._id)}
-                            variant="danger"
-                            size="sm"
-                            className="flex-1"
+                            className="flex-1 px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                           >
                             Cancel
-                          </Button>
+                          </button>
                         </div>
                       )}
                     </div>

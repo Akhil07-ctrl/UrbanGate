@@ -170,8 +170,8 @@ export const Payments = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Maintenance Payments</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <h1 className="text-3xl font-bold text-gray-900">Maintenance Payments</h1>
+          <p className="mt-1 text-sm text-gray-500">
             Manage and track your maintenance payments and dues
           </p>
         </div>
@@ -197,7 +197,7 @@ export const Payments = () => {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === status 
                 ? 'bg-indigo-600 text-white' 
-                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600'
+                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
             }`}
           >
             {status ? (
@@ -234,21 +234,21 @@ export const Payments = () => {
       {/* Payment Summary */}
       {payments.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-800/20 p-5 rounded-xl border border-indigo-100 dark:border-indigo-900/50">
+          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-5 rounded-xl border border-indigo-100">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400">Total Due</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                <p className="text-sm font-medium text-indigo-600">Total Due</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">
                   ₹{payments
                     .filter((p) => p.status !== 'paid')
                     .reduce((sum, p) => sum + p.amount, 0)
                     .toLocaleString('en-IN')}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   {payments.filter((p) => p.status !== 'paid').length} unpaid payment{payments.filter((p) => p.status !== 'paid').length !== 1 ? 's' : ''}
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300">
+              <div className="p-3 rounded-full bg-indigo-100 text-indigo-600">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -256,21 +256,21 @@ export const Payments = () => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/20 p-5 rounded-xl border border-green-100 dark:border-green-900/50">
+          <div className="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-xl border border-green-100">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-600 dark:text-green-400">Total Paid</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                <p className="text-sm font-medium text-green-600">Total Paid</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">
                   ₹{payments
                     .filter((p) => p.status === 'paid')
                     .reduce((sum, p) => sum + p.amount, 0)
                     .toLocaleString('en-IN')}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   {payments.filter((p) => p.status === 'paid').length} payment{payments.filter((p) => p.status === 'paid').length !== 1 ? 's' : ''} completed
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-300">
+              <div className="p-3 rounded-full bg-green-100 text-green-600">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -278,23 +278,23 @@ export const Payments = () => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/20 p-5 rounded-xl border border-amber-100 dark:border-amber-900/50">
+          <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-5 rounded-xl border border-amber-100">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-amber-600 dark:text-amber-400">Pending & Overdue</p>
+                <p className="text-sm font-medium text-amber-600">Pending & Overdue</p>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <p className="text-2xl font-bold text-gray-900">
                     {payments.filter((p) => p.status === 'pending' || p.status === 'overdue').length}
                   </p>
-                  <span className="text-xs text-amber-600 dark:text-amber-400">
+                  <span className="text-xs text-amber-600">
                     ({payments.filter((p) => p.status === 'overdue').length} overdue)
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   {payments.filter((p) => p.status === 'pending' || p.status === 'overdue').length > 0 ? 'Action required' : 'All clear!'}
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-300">
+              <div className="p-3 rounded-full bg-amber-100 text-amber-600">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
@@ -315,25 +315,25 @@ export const Payments = () => {
             return (
               <div 
                 key={payment._id}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700"
+                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-200"
               >
                 <div className="p-6">
                   {/* Header with status */}
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                      <h3 className="text-xl font-bold text-gray-900">
                         {new Date(payment.month).toLocaleDateString('en-US', { 
                           month: 'long', 
                           year: 'numeric' 
                         })}
                       </h3>
                       {payment.description && (
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                        <p className="text-sm text-gray-600 mt-1">
                           {payment.description}
                         </p>
                       )}
                       {user?.role === 'admin' && payment.residentId && (
-                        <div className="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <div className="mt-2 flex items-center text-sm text-gray-500">
                           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                           </svg>
@@ -343,10 +343,10 @@ export const Payments = () => {
                     </div>
                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                       isPaid 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200' 
+                        ? 'bg-green-100 text-green-800' 
                         : isOverdue 
-                          ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200' 
-                          : 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200'
+                          ? 'bg-red-100 text-red-800' 
+                          : 'bg-amber-100 text-amber-800'
                     }`}>
                       {isPaid && (
                         <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -370,19 +370,19 @@ export const Payments = () => {
                   {/* Payment details */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</p>
+                      <p className="text-2xl font-bold text-gray-900">
                         ₹{payment.amount.toLocaleString('en-IN')}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Due Date</p>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</p>
                       <p className={`text-lg font-semibold ${
-                        isOverdue ? 'text-red-600 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'
+                        isOverdue ? 'text-red-600' : 'text-gray-700'
                       }`}>
                         {payment.dueDate ? new Date(payment.dueDate).toLocaleDateString() : 'N/A'}
                         {isOverdue && (
-                          <span className="ml-2 text-xs font-normal text-red-500 dark:text-red-400">
+                          <span className="ml-2 text-xs font-normal text-red-500">
                             (Overdue)
                           </span>
                         )}
@@ -390,8 +390,8 @@ export const Payments = () => {
                     </div>
                     {isPaid && payment.paidAt && (
                       <div>
-                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Paid On</p>
-                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Paid On</p>
+                        <p className="text-sm font-medium text-gray-700">
                           {new Date(payment.paidAt).toLocaleDateString()}
                         </p>
                       </div>
@@ -400,17 +400,17 @@ export const Payments = () => {
 
                   {/* Breakdown */}
                   {payment.breakdown && Object.keys(payment.breakdown).length > 0 && (
-                    <div className="bg-gray-50 dark:bg-gray-700/30 p-4 rounded-lg mb-4">
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment Breakdown</p>
+                    <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Payment Breakdown</p>
                       <div className="space-y-2">
                         {Object.entries(payment.breakdown).map(
                           ([key, value]) =>
                             value && (
                               <div key={key} className="flex justify-between text-sm">
-                                <span className="text-gray-600 dark:text-gray-400">
+                                <span className="text-gray-600">
                                   {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()}
                                 </span>
-                                <span className="font-medium text-gray-900 dark:text-gray-200">
+                                <span className="font-medium text-gray-900">
                                   ₹{parseFloat(value).toLocaleString('en-IN')}
                                 </span>
                               </div>
@@ -437,8 +437,8 @@ export const Payments = () => {
                       onClick={() => downloadInvoice(payment._id)}
                       className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
                         isPaid 
-                          ? 'bg-white text-indigo-600 hover:bg-gray-50 border border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-indigo-400 dark:hover:bg-gray-600' 
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                          ? 'bg-white text-indigo-600 hover:bg-gray-50 border border-gray-200' 
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -476,132 +476,141 @@ export const Payments = () => {
           onClose={() => setShowCreateModal(false)}
           size="lg"
         >
-          <form onSubmit={handleCreatePayment} className="space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Month <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="month"
-                  value={formData.month}
-                  onChange={(e) => setFormData({ ...formData, month: e.target.value })}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                />
+          <div className="max-h-[calc(100vh-8rem)] overflow-y-auto px-1 -mx-1">
+            <form onSubmit={handleCreatePayment} className="space-y-4 p-1">
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Month <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="month"
+                    value={formData.month}
+                    onChange={(e) => setFormData({ ...formData, month: e.target.value })}
+                    required
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Amount (₹) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                    required
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="E.g., Monthly maintenance for common areas"
+                    rows="2"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Due Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.dueDate}
+                    onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                    required
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="flex items-center py-2">
+                  <input
+                    type="checkbox"
+                    id="createForAll"
+                    checked={formData.createForAll}
+                    onChange={(e) => setFormData({ ...formData, createForAll: e.target.checked })}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="createForAll" className="ml-2 block text-sm text-gray-700">
+                    Create for all residents
+                  </label>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Amount (₹) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  value={formData.amount}
-                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                  required
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="E.g., Monthly maintenance for common areas"
-                  rows="2"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Due Date <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={formData.dueDate}
-                  onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                  required
-                  min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="createForAll"
-                  checked={formData.createForAll}
-                  onChange={(e) => setFormData({ ...formData, createForAll: e.target.checked })}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label htmlFor="createForAll" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                  Create for all residents
-                </label>
-              </div>
-            </div>
-
-            {/* Breakdown Section */}
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                Payment Breakdown (Optional)
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                Break down the total amount into categories (e.g., maintenance, water, electricity)
-              </p>
-              
-              <div className="space-y-3">
-                {Object.entries(formData.breakdown).map(([key, value]) => (
-                  <div key={key} className="flex items-center">
-                    <label className="w-28 text-sm text-gray-700 dark:text-gray-300">
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </label>
-                    <div className="relative flex-1">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500 sm:text-sm">₹</span>
+              {/* Breakdown Section - Collapsible */}
+              <div className="border-t border-gray-200 pt-3">
+                <details className="group">
+                  <summary className="flex justify-between items-center cursor-pointer list-none">
+                    <span className="text-sm font-medium text-gray-700">
+                      Payment Breakdown (Optional)
+                    </span>
+                    <svg className="w-4 h-4 text-gray-500 transform transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div className="mt-3 space-y-3">
+                    <p className="text-xs text-gray-500">
+                      Break down the total amount into categories
+                    </p>
+                    {Object.entries(formData.breakdown).map(([key, value]) => (
+                      <div key={key} className="flex items-center">
+                        <label className="w-24 text-sm text-gray-700 truncate">
+                          {key.charAt(0).toUpperCase() + key.slice(1)}
+                        </label>
+                        <div className="relative flex-1">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-500 text-sm">₹</span>
+                          </div>
+                          <input
+                            type="number"
+                            value={value}
+                            onChange={(e) => {
+                              const newBreakdown = { ...formData.breakdown, [key]: e.target.value };
+                              setFormData({ ...formData, breakdown: newBreakdown });
+                            }}
+                            placeholder="0.00"
+                            min="0"
+                            step="0.01"
+                            className="pl-7 pr-3 py-2 w-full text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          />
+                        </div>
                       </div>
-                      <input
-                        type="number"
-                        value={value}
-                        onChange={(e) => {
-                          const newBreakdown = { ...formData.breakdown, [key]: e.target.value };
-                          setFormData({ ...formData, breakdown: newBreakdown });
-                        }}
-                        placeholder="0.00"
-                        min="0"
-                        step="0.01"
-                        className="pl-7 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      />
-                    </div>
+                    ))}
                   </div>
-                ))}
+                </details>
               </div>
-            </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <Button
-                type="button"
-                onClick={() => setShowCreateModal(false)}
-                variant="secondary"
-                className="px-4 py-2"
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white"
-              >
-                {formData.createForAll ? 'Create for All Residents' : 'Create Payment'}
-              </Button>
-            </div>
-          </form>
+              <div className="sticky bottom-0 bg-white pt-4 pb-2 -mx-1 px-1 border-t border-gray-200">
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                  >
+                    {formData.createForAll ? 'Create for All' : 'Create Payment'}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
         </Modal>
       )}
     </div>

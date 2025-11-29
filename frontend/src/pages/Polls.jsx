@@ -140,8 +140,8 @@ export const Polls = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Community Polls</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <h1 className="text-3xl font-bold text-gray-900">Community Polls</h1>
+          <p className="mt-1 text-sm text-gray-500">
             Participate in community decisions and share your opinion
           </p>
         </div>
@@ -171,18 +171,18 @@ export const Polls = () => {
               return (
                 <div 
                   key={poll._id} 
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700"
+                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-200"
                 >
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{poll.question}</h2>
+                        <h2 className="text-xl font-bold text-gray-900">{poll.question}</h2>
                         {poll.description && (
-                          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{poll.description}</p>
+                          <p className="mt-1 text-sm text-gray-600">{poll.description}</p>
                         )}
                       </div>
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        isActive ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                        isActive ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                       }`}>
                         {isActive ? 'Active' : 'Closed'}
                       </span>
@@ -198,22 +198,22 @@ export const Polls = () => {
                             <div className="flex justify-between items-center">
                               <span className={`text-sm font-medium ${
                                 isUserVote 
-                                  ? 'text-indigo-700 dark:text-indigo-300' 
-                                  : 'text-gray-700 dark:text-gray-300'
+                                  ? 'text-indigo-700' 
+                                  : 'text-gray-700'
                               }`}>
                                 {option.text}
                                 {isUserVote && (
-                                  <span className="ml-2 text-xs text-indigo-600 dark:text-indigo-400">
+                                  <span className="ml-2 text-xs text-indigo-600">
                                     (Your vote)
                                   </span>
                                 )}
                               </span>
-                              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                              <span className="text-xs font-medium text-gray-500">
                                 {percentage.toFixed(1)}%
                               </span>
                             </div>
 
-                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                            <div className="w-full bg-gray-200 rounded-full h-2.5">
                               <div 
                                 className={`h-full rounded-full transition-all duration-500 ${
                                   isUserVote 
@@ -227,13 +227,13 @@ export const Polls = () => {
                             </div>
 
                             <div className="flex justify-between">
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                              <span className="text-xs text-gray-500">
                                 {option.votes} vote{option.votes !== 1 ? 's' : ''}
                               </span>
                               {isActive && !hasVoted && (
                                 <button
                                   onClick={() => handleVote(poll._id, index)}
-                                  className="text-xs font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+                                  className="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
                                 >
                                   Vote
                                 </button>
@@ -244,9 +244,9 @@ export const Polls = () => {
                       })}
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <div className="mt-6 pt-4 border-t border-gray-100">
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center text-sm text-gray-500">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                           </svg>
@@ -312,7 +312,7 @@ export const Polls = () => {
         >
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Question <span className="text-red-500">*</span>
               </label>
               <input
@@ -321,26 +321,26 @@ export const Polls = () => {
                 onChange={(e) => setFormData({ ...formData, question: e.target.value })}
                 required
                 placeholder="What is your question?"
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Description (Optional)
               </label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Add more context or details about this poll..."
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 rows="3"
               />
             </div>
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-sm font-medium text-gray-700">
                   Poll Options <span className="text-red-500">*</span>
                 </label>
                 <span className="text-xs text-gray-500">Minimum 2 options required</span>
@@ -360,7 +360,7 @@ export const Polls = () => {
                         }}
                         required
                         placeholder={`Option ${index + 1}`}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                       />
                     </div>
                     {formData.options.length > 2 && (
@@ -382,7 +382,7 @@ export const Polls = () => {
               <button
                 type="button"
                 onClick={addOption}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 border border-dashed border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
@@ -392,7 +392,7 @@ export const Polls = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 End Date (Optional)
               </label>
               <div className="relative">
@@ -400,7 +400,7 @@ export const Polls = () => {
                   type="datetime-local"
                   value={formData.endsAt}
                   onChange={(e) => setFormData({ ...formData, endsAt: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   min={new Date().toISOString().slice(0, 16)}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -409,7 +409,7 @@ export const Polls = () => {
                   </svg>
                 </div>
               </div>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-xs text-gray-500">
                 Leave empty if the poll should stay open indefinitely
               </p>
             </div>
@@ -421,7 +421,7 @@ export const Polls = () => {
                   setShowForm(false);
                   setFormData({ question: '', description: '', options: ['', ''], endsAt: '' });
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
               >
                 Cancel
               </button>

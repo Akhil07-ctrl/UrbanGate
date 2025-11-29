@@ -14,6 +14,7 @@ export const CommunityManagement = () => {
   const [community, setCommunity] = useState(null);
   const [joinRequests, setJoinRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isLoadingRequests, setIsLoadingRequests] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
@@ -65,14 +66,37 @@ export const CommunityManagement = () => {
     }
   };
 
-  const fetchJoinRequests = async (communityId) => {
+  const fetchJoinRequests = async (communityId = community?._id) => {
+    if (!communityId) {
+      console.error('No community ID available');
+      return;
+    }
+    
+    setIsLoadingRequests(true);
     try {
       const response = await api.get('/communities/admin/join-requests', {
-        params: { communityId, status: 'pending' }
+        params: { 
+          communityId, 
+          status: 'pending',
+          _: new Date().getTime() // Prevent caching
+        }
       });
-      setJoinRequests(response.data.joinRequests);
+      
+      if (response.data?.joinRequests) {
+        setJoinRequests(response.data.joinRequests);
+      } else {
+        console.error('Unexpected response format:', response.data);
+        setJoinRequests([]);
+      }
     } catch (err) {
-      console.error('Failed to fetch join requests', err);
+      console.error('Error fetching join requests:', err);
+      toast.error(err.response?.data?.message || 'Failed to load join requests', {
+        position: 'top-right',
+        autoClose: 3000
+      });
+      setJoinRequests([]);
+    } finally {
+      setIsLoadingRequests(false);
     }
   };
 
@@ -83,9 +107,11 @@ export const CommunityManagement = () => {
         position: 'top-right',
         autoClose: 2000
       });
-      setJoinRequests(joinRequests.filter(r => r._id !== requestId));
-      fetchCommunityData();
+      // Instead of filtering, refetch to ensure we have the latest data
+      await fetchJoinRequests();
+      await fetchCommunityData();
     } catch (err) {
+      console.error('Error approving request:', err);
       toast.error(err.response?.data?.message || 'Failed to approve request', {
         position: 'top-right',
         autoClose: 3000
@@ -94,6 +120,11 @@ export const CommunityManagement = () => {
   };
 
   const handleReject = async (requestId) => {
+    if (!requestId) {
+      toast.error('Invalid request ID', { position: 'top-right' });
+      return;
+    }
+
     try {
       const response = await api.post(`/communities/admin/reject-request/${requestId}`, {
         rejectionReason
@@ -102,11 +133,12 @@ export const CommunityManagement = () => {
         position: 'top-right',
         autoClose: 2000
       });
-      setJoinRequests(joinRequests.filter(r => r._id !== requestId));
       setShowModal(false);
       setRejectionReason('');
-      fetchCommunityData();
+      await fetchJoinRequests(); // Refresh the list
+      await fetchCommunityData();
     } catch (err) {
+      console.error('Error rejecting request:', err);
       toast.error(err.response?.data?.message || 'Failed to reject request', {
         position: 'top-right',
         autoClose: 3000
@@ -426,47 +458,73 @@ export const CommunityManagement = () => {
 
       {/* Join Requests */}
       <Card>
-        <h2 className="text-2xl font-bold text-text mb-4">
-          Pending Join Requests ({joinRequests.length})
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold text-text">
+            Pending Join Requests ({joinRequests.length})
+          </h2>
+          <Button 
+            onClick={() => fetchJoinRequests()} 
+            size="sm" 
+            variant="secondary"
+            className="flex items-center gap-1"
+            disabled={isLoadingRequests}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh
+          </Button>
+        </div>
 
-        {joinRequests.length > 0 ? (
+        {isLoadingRequests ? (
+          <div className="flex justify-center py-8">
+            <Loading />
+          </div>
+        ) : joinRequests.length > 0 ? (
           <div className="space-y-4">
             {joinRequests.map((request) => (
               <div
                 key={request._id}
-                className="p-4 border border-[#d9d9d9] rounded-lg flex justify-between items-start"
+                className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <div className="flex-1">
-                  <h3 className="font-semibold text-text">{request.userId.name}</h3>
-                  <p className="text-sm text-textLight">{request.userId.email}</p>
-                  <div className="flex gap-2 items-center mt-2">
-                    <Badge variant="primary">{request.userRole}</Badge>
-                    {request.flatNumber && (
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                        🏢 {request.flatNumber}
-                      </span>
-                    )}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-text truncate">{request.userId?.name || 'Unknown User'}</h3>
+                    <p className="text-sm text-textLight truncate">{request.userId?.email || 'No email'}</p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <Badge variant={request.userRole === 'admin' ? 'primary' : 'success'}>
+                        {request.userRole || 'member'}
+                      </Badge>
+                      {request.flatNumber && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          🏢 {request.flatNumber}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => handleApprove(request._id)}
-                    variant="success"
-                    size="sm"
-                  >
-                    ✓ Approve
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setSelectedRequest(request._id);
-                      setShowModal(true);
-                    }}
-                    variant="danger"
-                    size="sm"
-                  >
-                    ✕ Reject
-                  </Button>
+                  <div className="flex flex-shrink-0 gap-2">
+                    <Button
+                      onClick={() => handleApprove(request._id)}
+                      variant="success"
+                      size="sm"
+                      className="whitespace-nowrap"
+                      disabled={isLoadingRequests}
+                    >
+                      ✓ Approve
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setSelectedRequest(request._id);
+                        setShowModal(true);
+                      }}
+                      variant="danger"
+                      size="sm"
+                      className="whitespace-nowrap"
+                      disabled={isLoadingRequests}
+                    >
+                      ✕ Reject
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
