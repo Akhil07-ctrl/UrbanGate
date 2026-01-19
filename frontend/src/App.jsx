@@ -7,7 +7,6 @@ import { NotificationProvider } from './context/NotificationContext';
 import { SocketProvider } from './context/SocketContext';
 import { NotificationCenter } from './components/NotificationCenter';
 import { Layout } from './components/Layout';
-import ErrorBoundary from './components/ErrorBoundary';
 import { Welcome } from './pages/Welcome';
 import { FeaturesPage } from './pages/FeaturesPage';
 import { BenefitsPage } from './pages/BenefitsPage';
@@ -17,7 +16,7 @@ import { Login, Register } from './pages/Auth';
 import { Dashboard } from './pages/Dashboard';
 import { Communities } from './pages/Communities';
 import { CommunityManagement } from './pages/CommunityManagement';
-import Complaints from './pages/Complaints';
+import { Complaints } from './pages/Complaints';
 import { Announcements } from './pages/Announcements';
 import { VisitorPass } from './pages/VisitorPass';
 import { Parking } from './pages/Parking';
@@ -48,8 +47,7 @@ const AppContent = () => {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={user ? <Navigate to="/welcome" replace /> : <Welcome />} />
-      <Route path="/welcome" element={user ? <Welcome /> : <Navigate to="/login" replace />} />
+      <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Welcome />} />
       <Route path="/features" element={<FeaturesPage />} />
       <Route path="/benefits" element={<BenefitsPage />} />
       <Route path="/about" element={<AboutPage />} />
@@ -180,31 +178,27 @@ const AppContent = () => {
 
 export default function App() {
   return (
-    <ErrorBoundary>
-      <Router>
-        <AuthProvider>
-          <NotificationProvider>
-            <SocketProvider>
-              <ToastContainer
-                position="top-right"
-                autoClose={3000}
-                hideProgressBar={false}
-                newestOnTop={true}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-              />
-              <NotificationCenter />
-              <ErrorBoundary>
-                <AppContent />
-              </ErrorBoundary>
-            </SocketProvider>
-          </NotificationProvider>
-        </AuthProvider>
-      </Router>
-    </ErrorBoundary>
+    <Router>
+      <AuthProvider>
+        <NotificationProvider>
+          <SocketProvider>
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={true}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+            />
+            <NotificationCenter />
+            <AppContent />
+          </SocketProvider>
+        </NotificationProvider>
+      </AuthProvider>
+    </Router>
   );
 }
